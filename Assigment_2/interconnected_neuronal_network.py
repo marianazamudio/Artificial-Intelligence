@@ -89,7 +89,8 @@ class InterconNeuralNet:
             raise ValueError("act_funct value is not valid, must be an int between 1 and 4")
 
         # Create void list for storing the outputs yj of the neurons
-        outputs = np.zeros(neurons_in_layers)
+        self.outputs = np.zeros(neurons_in_layers)
+        print(self.outputs, "OUTPUT INITIALIZED")
 
         # ---Initialize random weights to each connection of a neuron
         # Create void array, to store the weights of the connections in 
@@ -113,10 +114,9 @@ class InterconNeuralNet:
         # ---
 
         # Store other parameters
-        self.outputs = outputs
         self.random_weights = random_weights
         self.inputs =  [i+1 for i in range(neurons_in_layers[0])]
-        print(self.inputs)
+        
         
 
     def compute_output(self):
@@ -131,13 +131,15 @@ class InterconNeuralNet:
                         the last layer of the neural network
         """
         # Get number of total neurons
-        total_neurons = 0
         total_neurons = sum(self.neurons_in_layers)
 
         # Initialize counters
         neuron_counter_layer = 1
         current_layer = 0
         neurons_in_current_layer = self.neurons_in_layers[current_layer]
+
+        # Variable that stores the id of the first neuron in the current layer
+        start = 0
         
         # Iterate between neurons
         for k in range(total_neurons):
@@ -147,6 +149,9 @@ class InterconNeuralNet:
             else: 
                 start = sum(self.neurons_in_layers[:current_layer])
                 inputs = self.outputs[start: start+neurons_in_current_layer]
+            print(inputs, "***** inputs****")
+            print(self.outputs)
+            print("***")
 
             # Get weights of the neurons
             weights = self.random_weights[current_layer]
@@ -154,21 +159,27 @@ class InterconNeuralNet:
             v_k = 0
             # Iterate inputs
             for i in range(neurons_in_current_layer):
+                print(current_layer, "layer")
+                print(len(inputs), "len inputs")
+                print(neurons_in_current_layer, "neurons in layer")
                 # Compute v_k
-                vk += inputs[i] * weights[k-start,i-start]
+                v_k += inputs[i] * weights[k-start,i-start]
 
+            print("sali")
             # Compute output y_k
-            y_k = self.funct(v_k)
+            y_k = self.act_funct(v_k)
             # Store y_k in array with neuron's outputs.
             self.outputs[k] = y_k
 
             # Increase neuron counter for the current layer
-            neuron_in_curr_layer += 1
+            neuron_counter_layer += 1
 
             # Check if the current neuron corresponds to the next layer
             if neurons_in_current_layer < neuron_counter_layer:
+                print("Hello")
                 current_layer += 1
                 neurons_in_current_layer = self.neurons_in_layers[current_layer]
+                start += neurons_in_current_layer
 
 
         # Return the outputs of the neurons in the last layer of the net

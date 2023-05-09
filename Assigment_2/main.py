@@ -13,19 +13,20 @@ print("This programs allows you to create a customizable neural network")
 print("in terms of layers and number of neurons, weights are assigned")
 print("randomly\n")
 
-# Collect customizable data of the neural network
+# ---Collect customizable data of the neural network
 num_layers = int(input("Enter the number of layers in the neural network: "))
 neurons_in_layers = [0 for num_layers in range(3)]
 for i in range(num_layers):
     neurons_in_layers[i]= int(input(f"Enter the number of neurons in layer {i}: "))
     
-#TODO
+# Menu to select the activation function
 print("Select the activation function of the neural network:")
 print("1. Threshold  (Sesgo)")
 print("2. Sigmoid    (Signoide)")
 print("3. Signum     (Signo)")
 print("4. Hyperbolic tangent ")
 act_funct = int(input())
+# ---
 
 # Initialize neural network
 neural_net = InterconNeuralNet(num_layers, neurons_in_layers, act_funct)

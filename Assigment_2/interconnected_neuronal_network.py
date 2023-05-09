@@ -20,12 +20,14 @@ class InterconNeuralNet:
         neurons_in_layers: list
             List that contains the number of neurons in each layer
             ex. (N[1], N[2], ..., N[c]), c = num_layers. 
-        TODO
+        
         act_funct: int
-            Type of activation function.
-            1 --> signoide
-            2 --> sesgo
-            3 --> tanh
+            Int that indicates the type of activation function used 
+            in the neural network
+            1 --> Threshold (Sesgo)
+            2 --> Sigmoid (Sinoide)
+            3 --> Sinum (Signo)
+            4 --> Hiperbolic tangent
 
         inputs: list
             List of inputs [X_1 , ..., X_N[1]], of lenght equal to
@@ -62,12 +64,13 @@ class InterconNeuralNet:
             neurons_in_layers: list
                 List that contains the number of neurons in each layer
                 ex. (N[1], N[2], ..., N[c]), c = num_layers. 
-            TODO
+            
             act_funct: int
                 Type of activation function.
-                1 --> signoide
-                2 --> sesgo
-                3 --> tanh
+                1 --> Threshold (Sesgo)
+                2 --> Sigmoid (Sinoide)
+                3 --> Sinum (Signo)
+                4 --> Hiperbolic tangent
         """
         # Store customizable parameters
         self.num_layers =  num_layers
@@ -122,6 +125,10 @@ class InterconNeuralNet:
             initialization of weights on each neuron and the inputs Xi = i 
             where i = 1,2,3, ..., n, and n is the number of neurons in the 
             network. 
+
+            Returns: 
+                output: an array that contains the outputs of the neurons in 
+                        the last layer of the neural network
         """
         # Get number of total neurons
         total_neurons = 0
@@ -151,7 +158,7 @@ class InterconNeuralNet:
                 vk += inputs[i] * weights[k-start,i-start]
 
             # Compute output y_k
-            yk = self.funct(v_k)
+            y_k = self.funct(v_k)
             # Store y_k in array with neuron's outputs.
             self.outputs[k] = y_k
 
@@ -168,7 +175,14 @@ class InterconNeuralNet:
         return self.outputs[-self.neurons_in_layers[-1]:]
 
     @staticmethod
-    def evaluate_threshold_func(v):  # Sesgo
+    def evaluate_threshold_func(v):
+        """
+            Evaluates v in the threashold function  
+
+            Returns: 
+                output: integer 0 or 1
+        """
+        # Sesgo
         if v >= 0:
             return 1
         elif v < 0:
@@ -178,14 +192,26 @@ class InterconNeuralNet:
 
     @staticmethod
     def evaluate_sigmoid_func(v):  # Senoide
+        """
+            Evaluates v in the sigmoid function  
+
+            Returns: 
+                output: float in range [0,1]
+        """
         a = 1
         return 1/(1+math.exp(-a*v))
 
     @staticmethod
     def evaluate_signum_func(v): # Signo
+        """
+            Evaluates v in the signum function  
+
+            Returns: 
+                output: integer in {-1, 0, 1}
+        """
         if v < 0:
             return -1
-        elif v = 0:
+        elif v == 0:
             return 0
         elif v > 0:
             return 1
@@ -194,7 +220,13 @@ class InterconNeuralNet:
 
    
     @staticmethod
-    def evaluate_hiperb_tan_func(v): #Tanh
+    def evaluate_hiperb_tan_func(v): 
+        """
+            Evaluates v in the hiperbolic tangent function  
+
+            Returns: 
+                output: float in range [-1,1]
+        """
         a = 1
         return (math.exp(a*v) - math.exp(-a*v))/(math.exp(a*v) + math.exp(-a*v))
 

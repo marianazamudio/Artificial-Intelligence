@@ -21,15 +21,16 @@ for i in range(num_layers):
     
 #TODO
 print("Select the activation function of the neural network:")
-print("1. Senoide")
-print("2. Sesgo")
-print("3. Tanh")
+print("1. Threshold  (Sesgo)")
+print("2. Sigmoid    (Signoide)")
+print("3. Signum     (Signo)")
+print("4. Hyperbolic tangent ")
 act_funct = int(input())
 
 # Initialize neural network
 neural_net = InterconNeuralNet(num_layers, neurons_in_layers, act_funct)
 print(neural_net.random_weights)
-print(neural_net.output)
+print(neural_net.outputs)
 
 # Compute the output of the neural network
 output = neural_net.compute_output()

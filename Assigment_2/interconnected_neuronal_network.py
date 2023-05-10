@@ -29,12 +29,12 @@ class InterconNeuralNet:
             3 --> Sinum (Signo)
             4 --> Hiperbolic tangent
 
-        inputs: list
-            List of inputs [X_1 , ..., X_N[1]], of lenght equal to
+        inputs: numpy array
+            array of inputs [X_1 , ..., X_N[1]], of lenght equal to
             the numbers of neurons in the first layer (N[1]).
             and X1 = 1; ... ; X_N[1] = N[1]
         
-        random_weights: list
+        random_weights: list of numpy bidirectional arrays
             List that contains weight matrices for each layer as
             numpy biderectional arrays
         

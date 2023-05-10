@@ -89,33 +89,38 @@ class InterconNeuralNet:
             raise ValueError("act_funct value is not valid, must be an int between 1 and 4")
 
         # Create void list for storing the outputs yj of the neurons
-        self.outputs = np.zeros(neurons_in_layers)
+        self.outputs = np.zeros(sum(neurons_in_layers))
         print(self.outputs, "OUTPUT INITIALIZED")
+
 
         # ---Initialize random weights to each connection of a neuron
         # Create void array, to store the weights of the connections in 
         # each layers as matrices.
         random_weights = []
         # Iterate between layers
-        for i in range(self.num_layers-1):
-            width = self.neurons_in_layers[i] 
-            height = self.neurons_in_layers[i+1] 
-            # Create matrix with random weights for the layer
-            random_weights_layer = np.random.uniform(low=-1, high=1,size=(width, height))
-            # Append weights of the layer to the array with all the weights
-            random_weights.append(random_weights_layer)
-            
+        for i in range(-1,self.num_layers-1):
             # Create additional weight matrix for the inputs
-            if i == 0:
+            if i == -1:
+                size = neurons_in_layers[0]
                 # Create matrix with random weights for the layer
-                random_weights_layer = np.random.rand(width, height)
+                random_weights_layer = np.random.rand(size, size)
                 # Append weights of the layer to the array with all the weights
                 random_weights.append(random_weights_layer)
+            else:
+                width = self.neurons_in_layers[i] 
+                height = self.neurons_in_layers[i+1] 
+                # Create matrix with random weights for the layer
+                random_weights_layer = np.random.uniform(low=-1, high=1,size=(width, height))
+                # Append weights of the layer to the array with all the weights
+                random_weights.append(random_weights_layer)
+
+            print(random_weights)
         # ---
 
         # Store other parameters
         self.random_weights = random_weights
         self.inputs =  [i+1 for i in range(neurons_in_layers[0])]
+        print(self.inputs)
         
         
 

@@ -25,7 +25,7 @@ print("1. Threshold  (Sesgo)")
 print("2. Sigmoid    (Signoide)")
 print("3. Signum     (Signo)")
 print("4. Hyperbolic tangent ")
-act_funct = int(input())
+act_funct = int(input("Choice: "))
 # ---
 
 # Initialize neural network

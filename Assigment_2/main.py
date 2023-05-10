@@ -15,9 +15,9 @@ print("randomly\n")
 
 # ---Collect customizable data of the neural network
 num_layers = int(input("Enter the number of layers in the neural network: "))
-neurons_in_layers = [0 for num_layers in range(3)]
+neurons_in_layers = [0 for num_layers in range(num_layers)]
 for i in range(num_layers):
-    neurons_in_layers[i]= int(input(f"Enter the number of neurons in layer {i}: "))
+    neurons_in_layers[i]= int(input(f"Enter the number of neurons in layer {i+1}: "))
     
 # Menu to select the activation function
 print("\nSelect the activation function of the neural network:")
@@ -31,9 +31,15 @@ print("\n")
 
 # Initialize neural network
 neural_net = InterconNeuralNet(num_layers, neurons_in_layers, act_funct)
-print(neural_net.random_weights)
-print(neural_net.outputs)
 
 # Compute the output of the neural network
 output = neural_net.compute_output()
-print(f"The output of the neural network is: {output}")
+
+# Print weight matrix for each layer
+for i in range(num_layers):
+    print(f"Weight matrix for inputs in layer {i+1}")
+    print(neural_net.random_weights[i])
+    print("\n")
+
+print(f"The output in each layer is: {neural_net.outputs}")
+print(f"THE OUTPUT OF THE NEURAL NETWORK IS: {output}")

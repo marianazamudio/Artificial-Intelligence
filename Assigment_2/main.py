@@ -20,12 +20,13 @@ for i in range(num_layers):
     neurons_in_layers[i]= int(input(f"Enter the number of neurons in layer {i}: "))
     
 # Menu to select the activation function
-print("Select the activation function of the neural network:")
+print("\nSelect the activation function of the neural network:")
 print("1. Threshold  (Sesgo)")
 print("2. Sigmoid    (Signoide)")
 print("3. Signum     (Signo)")
 print("4. Hyperbolic tangent ")
-act_funct = int(input("Choice: "))
+act_funct = int(input("\nChoice: "))
+print("\n")
 # ---
 
 # Initialize neural network

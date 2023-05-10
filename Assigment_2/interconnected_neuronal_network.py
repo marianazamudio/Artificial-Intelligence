@@ -90,7 +90,6 @@ class InterconNeuralNet:
 
         # Create void list for storing the outputs yj of the neurons
         self.outputs = np.zeros(sum(neurons_in_layers))
-        print(self.outputs, "OUTPUT INITIALIZED")
 
 
         # ---Initialize random weights to each connection of a neuron
@@ -107,20 +106,17 @@ class InterconNeuralNet:
                 # Append weights of the layer to the array with all the weights
                 random_weights.append(random_weights_layer)
             else:
-                width = self.neurons_in_layers[i] 
-                height = self.neurons_in_layers[i+1] 
+                height = self.neurons_in_layers[i] 
+                width = self.neurons_in_layers[i+1] 
                 # Create matrix with random weights for the layer
                 random_weights_layer = np.random.uniform(low=-1, high=1,size=(width, height))
                 # Append weights of the layer to the array with all the weights
                 random_weights.append(random_weights_layer)
-
-            print(random_weights)
         # ---
 
         # Store other parameters
         self.random_weights = random_weights
-        self.inputs =  [i+1 for i in range(neurons_in_layers[0])]
-        print(self.inputs)
+        self.inputs = np.array([i+1 for i in range(neurons_in_layers[0])])
         
         
 
@@ -135,59 +131,47 @@ class InterconNeuralNet:
                 output: an array that contains the outputs of the neurons in 
                         the last layer of the neural network
         """
-        # Get number of total neurons
-        total_neurons = sum(self.neurons_in_layers)
-
-        # Initialize counters
-        neuron_counter_layer = 1
-        current_layer = 0
-        neurons_in_current_layer = self.neurons_in_layers[current_layer]
-
-        # Variable that stores the id of the first neuron in the current layer
-        start = 0
-        
-        # Iterate between neurons
-        for k in range(total_neurons):
-            # Get inputs of the neurons
-            if current_layer == 0:
-                inputs = self.inputs
+        # Initialize variable for indexing the list of outputs of neurons
+        # that are also the inputs in the current layer. 
+        start = 0 
+        current_neuron = 1
+        # Iterate between layers
+        for layer in range(self.num_layers):
+            # Obtain input vector
+            if layer == 0:
+                inputs_of_layer = self.inputs
             else: 
-                start = sum(self.neurons_in_layers[:current_layer])
-                inputs = self.outputs[start: start+neurons_in_current_layer]
-            print(inputs, "***** inputs****")
-            print(self.outputs)
-            print("***")
+                finish = start + self.neurons_in_layers[layer-1]
+                inputs_of_layer = self.outputs[start:finish]
+            
+            # Iterate between neurons in current layer
+            for i in range(self.neurons_in_layers[layer]):
+                # Obtain the weight vector for inputs in neuron k
+                weight_mat = self.random_weights[layer]
+                # Tomar la fila i de la matriz que corresponde a los
+                # pesos para las entradas de la neurona k
+                weight_vect =  weight_mat[i, :]
 
-            # Get weights of the neurons
-            weights = self.random_weights[current_layer]
+                # Aplica producto punto de entradas y vector de pesos
+                #print(inputs_of_layer, "inputs")
+                #print(weight_vect, "weight_vect")
+                #print(layer, "layer")
+                #print(current_neuron, "current_neuron")
+                v_k = np.dot(inputs_of_layer, weight_vect)
 
-            v_k = 0
-            # Iterate inputs
-            for i in range(neurons_in_current_layer):
-                print(current_layer, "layer")
-                print(len(inputs), "len inputs")
-                print(neurons_in_current_layer, "neurons in layer")
-                # Compute v_k
-                v_k += inputs[i] * weights[k-start,i-start]
+                # Aplica función de activación 
+                y_k = self.act_funct(v_k)
 
-            print("sali")
-            # Compute output y_k
-            y_k = self.act_funct(v_k)
-            # Store y_k in array with neuron's outputs.
-            self.outputs[k] = y_k
+                # Guarda resultado en el vector de salidas 
+                self.outputs[current_neuron-1] = y_k
 
-            # Increase neuron counter for the current layer
-            neuron_counter_layer += 1
-
-            # Check if the current neuron corresponds to the next layer
-            if neurons_in_current_layer < neuron_counter_layer:
-                print("Hello")
-                current_layer += 1
-                neurons_in_current_layer = self.neurons_in_layers[current_layer]
-                start += neurons_in_current_layer
-
-
-        # Return the outputs of the neurons in the last layer of the net
+                current_neuron +=1
+            
+            if layer != 0:
+                # Incrementar el indicador de inicio de entradas de la capa
+                start += self.neurons_in_layers[layer]
+        
+        
         return self.outputs[-self.neurons_in_layers[-1]:]
 
     @staticmethod

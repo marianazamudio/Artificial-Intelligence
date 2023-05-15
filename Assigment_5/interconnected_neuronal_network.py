@@ -107,7 +107,7 @@ class InterconNeuralNet:
             # Create additional weight matrix for the inputs
             if i == -1:
                 rows = self.neurons_in_layers[0]
-                columns = len(inputs)
+                columns = len(self.inputs)
                 # Create matrix with random weights for the layer
                 weights_layer = np.zeros((rows, columns))
                 # Append weights of the layer to the array with all the weights
@@ -123,7 +123,16 @@ class InterconNeuralNet:
 
         # Store weights as a network attribute
         self.weights = weights
-        
+
+    """
+        #TODO
+    """
+    def set_inputs(self, inputs):
+        self.inputs = [1] + inputs
+    
+    """ 
+        #TODO
+    """
     def train(self, n, pairs_io):
         prev_weights = []
         while(True):
@@ -138,9 +147,12 @@ class InterconNeuralNet:
                 # Adaptar pesos
                 self.weights[0] = self.weights[0] + n * (d - y) * self.inputs
 
-                curr_weights.append()
+                curr_weights.append(self.weights[0])
+                print("Input", self.inputs, "Output", y)
             
-            if curr_weights == prev_weights and prev_weights != []:
+            # Checar que todos los pesos sean iguales
+            if np.all(curr_weights == curr_weights[0]) and\
+               np.all(prev_weights == curr_weights[0]):
                 return curr_weights
             
             else:
@@ -185,6 +197,9 @@ class InterconNeuralNet:
                 #print(weight_vect, "weight_vect")
                 #print(layer, "layer")
                 #print(current_neuron, "current_neuron")
+                print(inputs_of_layer)
+                print(weight_mat)
+                print(weight_vect)
                 v_k = np.dot(inputs_of_layer, weight_vect)
 
                 # Aplica función de activación 

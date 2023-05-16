@@ -80,7 +80,6 @@ class InterconNeuralNet:
         """
         # Store customizable parameters
         self.inputs = [1] + inputs
-        print("self.inputs", self.inputs)
         self.num_layers =  num_layers
         self.neurons_in_layers =  neurons_in_layers
 
@@ -111,7 +110,6 @@ class InterconNeuralNet:
                 columns = len(self.inputs)
                 # Create matrix with random weights for the layer
                 weights_layer = np.zeros((rows, columns))
-                print("weught layer", weights_layer)
                 # Append weights of the layer to the array with all the weights
                 weights.append(weights_layer)
             else:
@@ -136,42 +134,42 @@ class InterconNeuralNet:
     """ 
         #TODO
     """
-    def train(self, n, pairs_io):
-        prev_weights = []
-        i = 0
+    def train_perceptron(self, eta, pairs_io):
+        n = 0
         while(True):
-            i+=1
+            n += 1
             curr_weights = []
             for pair in pairs_io:
-                # Set inputs
+                # Set inputs x(n)
                 self.set_inputs(pair[0])
-                # Obtener salidas 
+                # Obtain desired response d(n)
                 d = pair[1]
-                # Calcular salida
+                # Compute actual response y(n)
                 y = self.compute_output()
-                # Adaptar pesos
-                print(self.weights[0])
-                self.weights[0] = self.weights[0] + n * (d - y) * self.inputs
-
+                # Adaptation of weight vector 
+                self.weights[0] = self.weights[0] + eta * (d - y) * self.inputs
+                # Add weight matrix current input set
                 curr_weights.append(self.weights[0])
-                print("Input", self.inputs, "Output", y)
                 
                 
-                print(n)
-                print(d)
-                print(y)
-                print(self.inputs)
-                print(self.weights[0])
-                input()
+                # ----- Uncomment to see data of each iteration ---- #
+                #print(eta)
+                #print(d)
+                #print(y)
+                #print(self.inputs)
+                #print(self.weights[0])
+                #input()
+                # --------------------------------------------------- #
             
-            # Checar que todos los pesos sean iguales
-            if np.all(curr_weights == curr_weights[0]) and\
-               np.all(prev_weights == curr_weights[0]):
-                print(i,"i")
-                return curr_weights
+            # Check if weights did not change for the set of inputs used in training
+            if np.all(curr_weights == curr_weights[0]):
+                # Print number of iterations executed to train the perceptron
+                print("iteraciones: ", n, "---------------")
+                # Return the matrix of weights obtained after training
+                return curr_weights[0]
             
             else:
-                prev_weights = curr_weights.copy()
+                # Clear current weights matrix
                 curr_weights = []
 
 
@@ -203,7 +201,7 @@ class InterconNeuralNet:
             for i in range(self.neurons_in_layers[layer]):
                 # Obtain the weight
                 #  vector for inputs in neuron k
-                print(self.weights, "weights")
+                #print(self.weights, "weights")
                 weight_mat = self.weights[layer]
                 
                 # Tomar la fila i de la matriz que corresponde a los
@@ -211,11 +209,11 @@ class InterconNeuralNet:
                 weight_vect =  weight_mat[i,:]
 
                 # wT(i) x(i)
-                print(inputs_of_layer, "inputs")
-                print(weight_mat, "mat")
-                print(weight_vect, "vector")
+                #print(inputs_of_layer, "inputs")
+                #print(weight_mat, "mat")
+                #print(weight_vect, "vector")
                 v_k = np.dot(inputs_of_layer, weight_vect)
-                print(v_k, "v_k")
+                #print(v_k, "v_k")
                 # Aplica función de activación 
                 y_k = self.act_funct(v_k)
 

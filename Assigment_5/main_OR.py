@@ -44,10 +44,15 @@ for pair in pairs_io:
 
 # Vizualization
 
-# Plot points
-points_x1 = [pair_io[0][0] for pair_io in pairs_io]
-points_x2= [pair_io[0][1] for pair_io in pairs_io]
-plt.scatter(points_x1, points_x2, color="red", label = "points")
+# Plot points of Class 1
+points_x1 = [pair_io[0][0] for pair_io in pairs_io if pair_io[1][0] == 1]
+points_x2= [pair_io[0][1] for pair_io in pairs_io if pair_io[1][0] == 1]
+plt.scatter(points_x1, points_x2, color="blue", label = "points")
+
+# Plot points of Class 2
+points_x1 = [pair_io[0][0] for pair_io in pairs_io if pair_io[1][0] == -1]
+points_x2= [pair_io[0][1] for pair_io in pairs_io if pair_io[1][0] == -1]
+plt.scatter(points_x1, points_x2, color="red", label = "points", marker="x")
 
 # Plot class division
 x1 = np.arange(-0.25,1.2,0.05)

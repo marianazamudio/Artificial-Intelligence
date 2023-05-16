@@ -160,6 +160,7 @@ class InterconNeuralNet:
             n += 1
             curr_weights = []
             for pair in pairs_io:
+                counter = 0
                 # Set inputs x(n)
                 self.set_inputs(pair[0])
                 # Obtain desired response d(n)

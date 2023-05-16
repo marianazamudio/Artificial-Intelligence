@@ -61,7 +61,7 @@ class InterconNeuralNet:
             -----------
             inputs: list
                 List with items float or int that are the input values for 
-                the neural network. A an item equal to 1 is added autom. at the 
+                the neural network. An item equal to +1 is added autom. at the 
                 beginning for the bias input. 
 
             num_layers: int
@@ -125,14 +125,34 @@ class InterconNeuralNet:
         self.weights = weights.copy()
 
     """
-        #TODO
+        Modifies inputs of the neural net, adds input X0 = +1 for the bias
+        automatically, no need to enter it. 
+        
+        Parameters
+        ----------
+        inputs: list
+            List with items float or int that are the input values for 
+            the neural network. An item equal to +1 is added autom. at the 
+            beginning for the bias input. 
     """
     def set_inputs(self, inputs):
         self.inputs = [1] + inputs
         
     
     """ 
-        #TODO
+        Trains the perceptron so it can adjust its weights' matrices,
+        so it can classify input vectors into two possible
+        linearly separable classes.
+
+        Parameters
+        ----------
+        eta: float
+            Float that indicates the learning-rate parameter, 
+            a positive constant less than unity
+
+        pairs_io: List
+            List of Lists of size 2 with pairs input vector and desired response
+            [x(i), d(i)]
     """
     def train_perceptron(self, eta, pairs_io):
         n = 0

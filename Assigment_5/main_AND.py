@@ -30,6 +30,7 @@ print(w)
 print("*******************")
 
 # Test the perceptron and print table
+print("AND OPERATION")
 print("----------------------------")
 print("Entradas   Exp.Res   Obt.Res")
 print("----------------------------")
@@ -53,7 +54,10 @@ x1 = np.arange(-0.25,1.2,0.05)
 x2 = -w[1]/w[2] * x1 - w[0]/w[2]
 plt.plot(x1,x2, color = "blue", label = "div")
 
-plt.title("Grafico de Clases Operación AND")
+plt.fill_between(x1, x2, 2, where=(x2 >= -2), color='green', alpha=0.3, label='Class 2 - True')
+plt.fill_between(x1, x2, -2, where=(x2 <= 2), color='red', alpha=0.3, label='Class 1 - False')
+
+plt.title("Grafico de Clases - Operación AND")
 plt.legend()
 plt.show()
 

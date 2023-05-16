@@ -110,6 +110,9 @@ class InterconNeuralNet:
                 columns = len(self.inputs)
                 # Create matrix with random weights for the layer
                 weights_layer = np.zeros((rows, columns))
+                #weights_layer = np.array([[1, 2, 3]])
+                
+                #weights_layer = np.zeros([[1,2,3]])
                 # Append weights of the layer to the array with all the weights
                 weights.append(weights_layer)
             else:
@@ -158,7 +161,8 @@ class InterconNeuralNet:
         n = 0
         while(True):
             n += 1
-            curr_weights = []
+            d_array = []
+            y_array =[]
             for pair in pairs_io:
                 counter = 0
                 # Set inputs x(n)
@@ -169,8 +173,8 @@ class InterconNeuralNet:
                 y = self.compute_output()
                 # Adaptation of weight vector 
                 self.weights[0] = self.weights[0] + eta * (d - y) * self.inputs
-                # Add weight matrix current input set
-                curr_weights.append(self.weights[0])
+                d_array.append(d[0])
+                y_array.append(y[0])
                 
                 
                 # ----- Uncomment to see data of each iteration ---- #
@@ -179,19 +183,20 @@ class InterconNeuralNet:
                 #print(y)
                 #print(self.inputs)
                 #print(self.weights[0])
+                #print(d_array)
+                #print(y_array)
                 #input()
                 # --------------------------------------------------- #
             
             # Check if weights did not change for the set of inputs used in training
-            if np.all(curr_weights == curr_weights[0]):
+            if y_array == d_array:
                 # Print number of iterations executed to train the perceptron
                 print("iteraciones: ", n, "---------------")
+                print(y_array, "y_array")
+                print(d_array, "d_array")
                 # Return the matrix of weights obtained after training
-                return curr_weights[0]
+                return self.weights[0]
             
-            else:
-                # Clear current weights matrix
-                curr_weights = []
 
 
     def compute_output(self):

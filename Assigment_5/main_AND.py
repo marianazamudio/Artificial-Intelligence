@@ -26,7 +26,7 @@ pairs_io = [[[0,0], r_false], [[0,1],r_false], [[1,0], r_false], [[1,1], r_true]
 # Training
 print("***********************")
 w = perceptron.train_perceptron(eta, pairs_io)[0]
-print(w)
+print(w, "weights")
 print("*******************")
 
 # Test the perceptron and print table

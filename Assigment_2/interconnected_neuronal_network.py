@@ -102,14 +102,19 @@ class InterconNeuralNet:
             if i == -1:
                 size = neurons_in_layers[0]
                 # Create matrix with random weights for the layer
-                random_weights_layer = np.random.rand(size, size)
+                random_weights_layer = np.ones((size, size))    # TODO: Change back to random weights
+                # ***************************
+                # Modifiqué las entradas de la segunda neurona
+                random_weights_layer[0][1] = 1
+                random_weights_layer[1][1] = 2
+                random_weights_layer[2][1] = 3
                 # Append weights of the layer to the array with all the weights
                 random_weights.append(random_weights_layer)
             else:
                 height = self.neurons_in_layers[i] 
                 width = self.neurons_in_layers[i+1] 
                 # Create matrix with random weights for the layer
-                random_weights_layer = np.random.uniform(low=-1, high=1,size=(width, height))
+                random_weights_layer = np.ones((width, height))  # TODO: Change back to random weights
                 # Append weights of the layer to the array with all the weights
                 random_weights.append(random_weights_layer)
         # ---
@@ -117,6 +122,8 @@ class InterconNeuralNet:
         # Store other parameters
         self.random_weights = random_weights
         self.inputs = np.array([i+1 for i in range(neurons_in_layers[0])])
+        self.inputs = [1,2,3]
+        #print(self.inputs)
         
         
 
@@ -140,9 +147,11 @@ class InterconNeuralNet:
             # Obtain input vector
             if layer == 0:
                 inputs_of_layer = self.inputs
+                #print(inputs_of_layer, layer)
             else: 
                 finish = start + self.neurons_in_layers[layer-1]
                 inputs_of_layer = self.outputs[start:finish]
+                #print(inputs_of_layer, layer)
             
             # Iterate between neurons in current layer
             for i in range(self.neurons_in_layers[layer]):
@@ -169,7 +178,7 @@ class InterconNeuralNet:
             
             if layer != 0:
                 # Incrementar el indicador de inicio de entradas de la capa
-                start += self.neurons_in_layers[layer]
+                start += self.neurons_in_layers[layer-1]  ####
         
         
         return self.outputs[-self.neurons_in_layers[-1]:]

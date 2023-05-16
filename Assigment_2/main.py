@@ -12,7 +12,7 @@ print("\n\n-------------------------Welcome------------------------------")
 print("This programs allows you to create a customizable neural network")
 print("in terms of layers and number of neurons, weights are assigned")
 print("randomly\n")
-print("This program is sponsored by Coca-Cola")
+
 
 # ---Collect customizable data of the neural network
 num_layers = int(input("Enter the number of layers in the neural network: "))
@@ -28,19 +28,19 @@ print("3. Signum     (Signo)")
 print("4. Hyperbolic tangent ")
 act_funct = int(input("\nChoice: "))
 print("\n")
-# ---
+
 
 # Initialize neural network
 neural_net = InterconNeuralNet(num_layers, neurons_in_layers, act_funct)
-
+#neural_net = InterconNeuralNet(3, [3,2,3], 2)
 # Compute the output of the neural network
 output = neural_net.compute_output()
 
 # Print weight matrix for each layer
-for i in range(num_layers):
-    print(f"Weight matrix for inputs in layer {i+1}")
-    print(neural_net.random_weights[i])
-    print("\n")
+#for i in range(num_layers): #num_layers
+#    print(f"Weight matrix for inputs in layer {i+1}")
+#    print(neural_net.random_weights[i])
+#    print("\n")
 
 print(f"The output in each neuron is: {neural_net.outputs}")
-print(f"THE OUTPUT OF THE NEURAL NETWORK IS: {output}")
+print(f"\nTHE OUTPUT OF THE NEURAL NETWORK IS: {output}")

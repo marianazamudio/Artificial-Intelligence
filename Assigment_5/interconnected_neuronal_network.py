@@ -80,6 +80,7 @@ class InterconNeuralNet:
         """
         # Store customizable parameters
         self.inputs = [1] + inputs
+        print("self.inputs", self.inputs)
         self.num_layers =  num_layers
         self.neurons_in_layers =  neurons_in_layers
 
@@ -110,6 +111,7 @@ class InterconNeuralNet:
                 columns = len(self.inputs)
                 # Create matrix with random weights for the layer
                 weights_layer = np.zeros((rows, columns))
+                print("weught layer", weights_layer)
                 # Append weights of the layer to the array with all the weights
                 weights.append(weights_layer)
             else:
@@ -122,37 +124,50 @@ class InterconNeuralNet:
         # ---
 
         # Store weights as a network attribute
-        self.weights = weights
+        self.weights = weights.copy()
 
     """
         #TODO
     """
     def set_inputs(self, inputs):
         self.inputs = [1] + inputs
+        
     
     """ 
         #TODO
     """
     def train(self, n, pairs_io):
         prev_weights = []
+        i = 0
         while(True):
+            i+=1
             curr_weights = []
             for pair in pairs_io:
-                # Obtener entradas
-                self.inputs = pair[0]
+                # Set inputs
+                self.set_inputs(pair[0])
                 # Obtener salidas 
                 d = pair[1]
                 # Calcular salida
                 y = self.compute_output()
                 # Adaptar pesos
+                print(self.weights[0])
                 self.weights[0] = self.weights[0] + n * (d - y) * self.inputs
 
                 curr_weights.append(self.weights[0])
                 print("Input", self.inputs, "Output", y)
+                
+                
+                print(n)
+                print(d)
+                print(y)
+                print(self.inputs)
+                print(self.weights[0])
+                input()
             
             # Checar que todos los pesos sean iguales
             if np.all(curr_weights == curr_weights[0]) and\
                np.all(prev_weights == curr_weights[0]):
+                print(i,"i")
                 return curr_weights
             
             else:
@@ -186,22 +201,21 @@ class InterconNeuralNet:
             
             # Iterate between neurons in current layer
             for i in range(self.neurons_in_layers[layer]):
-                # Obtain the weight vector for inputs in neuron k
+                # Obtain the weight
+                #  vector for inputs in neuron k
+                print(self.weights, "weights")
                 weight_mat = self.weights[layer]
+                
                 # Tomar la fila i de la matriz que corresponde a los
                 # pesos para las entradas de la neurona k
-                weight_vect =  weight_mat[ :, i]
+                weight_vect =  weight_mat[i,:]
 
-                # Aplica producto punto de entradas y vector de pesos
-                #print(inputs_of_layer, "inputs")
-                #print(weight_vect, "weight_vect")
-                #print(layer, "layer")
-                #print(current_neuron, "current_neuron")
-                print(inputs_of_layer)
-                print(weight_mat)
-                print(weight_vect)
+                # wT(i) x(i)
+                print(inputs_of_layer, "inputs")
+                print(weight_mat, "mat")
+                print(weight_vect, "vector")
                 v_k = np.dot(inputs_of_layer, weight_vect)
-
+                print(v_k, "v_k")
                 # Aplica función de activación 
                 y_k = self.act_funct(v_k)
 

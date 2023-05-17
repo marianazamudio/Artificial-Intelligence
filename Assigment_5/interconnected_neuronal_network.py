@@ -109,10 +109,9 @@ class InterconNeuralNet:
                 rows = self.neurons_in_layers[0]
                 columns = len(self.inputs)
                 # Create matrix with random weights for the layer
-                weights_layer = np.zeros((rows, columns))
-                #weights_layer = np.array([[1, 2, 3]])
+                #weights_layer = np.zeros((rows, columns))
+                weights_layer = np.array([[1, -10, 3]])
                 
-                #weights_layer = np.zeros([[1,2,3]])
                 # Append weights of the layer to the array with all the weights
                 weights.append(weights_layer)
             else:
@@ -176,17 +175,6 @@ class InterconNeuralNet:
                 d_array.append(d[0])
                 y_array.append(y[0])
                 
-                
-                # ----- Uncomment to see data of each iteration ---- #
-                #print(eta)
-                #print(d)
-                #print(y)
-                #print(self.inputs)
-                #print(self.weights[0])
-                #print(d_array)
-                #print(y_array)
-                #input()
-                # --------------------------------------------------- #
             
             # Check if weights did not change for the set of inputs used in training
             if y_array == d_array:

@@ -58,8 +58,8 @@ x1 = np.arange(-0.25,1.2,0.05)
 x2 = -w[1]/w[2] * x1 - w[0]/w[2]
 plt.plot(x1,x2, color = "purple", label = "div")
 
-plt.fill_between(x1, x2, 3, where=(x2 >= -2), color='green', alpha=0.3, label='Class 2 - True')
-plt.fill_between(x1, x2, -2, where=(x2 <= 3), color='red', alpha=0.3, label='Class 1 - False')
+#plt.fill_between(x1, x2, 3, where=(x2 >= -2), color='green', alpha=0.3, label='Class 2 - True')
+#plt.fill_between(x1, x2, -2, where=(x2 <= 3), color='red', alpha=0.3, label='Class 1 - False')
 
 plt.title("Grafico de Clases - Operación AND")
 plt.legend()

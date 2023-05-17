@@ -47,20 +47,20 @@ for pair in pairs_io:
 # Plot points of Class 1
 points_x1 = [pair_io[0][0] for pair_io in pairs_io if pair_io[1][0] == 1]
 points_x2= [pair_io[0][1] for pair_io in pairs_io if pair_io[1][0] == 1]
-plt.scatter(points_x1, points_x2, color="blue", label = "points")
+plt.scatter(points_x1, points_x2, color="blue", label = "1")
 
 # Plot points of Class 2
 points_x1 = [pair_io[0][0] for pair_io in pairs_io if pair_io[1][0] == -1]
 points_x2= [pair_io[0][1] for pair_io in pairs_io if pair_io[1][0] == -1]
-plt.scatter(points_x1, points_x2, color="red", label = "points", marker="x")
+plt.scatter(points_x1, points_x2, color="red", label = "0", marker="x")
 
 # Plot class division
 x1 = np.arange(-0.25,1.2,0.05)
 x2 = -w[1]/w[2] * x1 - w[0]/w[2]
 plt.plot(x1,x2, color = "blue", label = "div")
 
-plt.fill_between(x1, x2, 2, where=(x2 >= -2), color='green', alpha=0.3, label='Class 2 - True')
-plt.fill_between(x1, x2, -2, where=(x2 <= 2), color='red', alpha=0.3, label='Class 1 - False')
+#plt.fill_between(x1, x2, 2, where=(x2 >= -2), color='green', alpha=0.3, label='Class 2 - True')
+#plt.fill_between(x1, x2, -2, where=(x2 <= 2), color='red', alpha=0.3, label='Class 1 - False')
 
 
 

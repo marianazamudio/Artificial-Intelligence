@@ -15,7 +15,7 @@ num_layers = 1
 num_neurons = [1]
 perceptron = InterconNeuralNet(inputs, num_layers, num_neurons, 3)
 
-# Select n
+# Select eta
 eta = 0.5
 
 # Inicialize pairs input-output
@@ -42,7 +42,7 @@ for pair in pairs_io:
     print(inputs, "\t  ",expected_response, "   ",response_obtained)
     
 
-# Vizualization
+# Visualization
 # Plot points of Class 1
 points_x1 = [pair_io[0][0] for pair_io in pairs_io if pair_io[1][0] == -1]
 points_x2= [pair_io[0][1] for pair_io in pairs_io if pair_io[1][0] == -1]

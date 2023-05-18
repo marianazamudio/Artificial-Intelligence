@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 inputs = [0,0]
 num_layers = 1
 num_neurons = [1]
-perceptron = InterconNeuralNet(inputs, num_layers, num_neurons, 3)
+perceptron = InterconNeuralNet(inputs, num_layers, num_neurons, 3) # 3 --> Sign function
 
 # Select eta
 eta = 0.5

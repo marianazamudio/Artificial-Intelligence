@@ -23,7 +23,7 @@ import numpy as np
 r = 3  
 # Vertical distance between center of moon 
 # in region A and moon in region B
-d = 2
+d = -0.5
 # Width of the moons 
 w = 1  
 # num coordinates for trainning
@@ -31,10 +31,14 @@ n_train_coord = 1000
 # num coordinates for testing 
 n_test_coord = 2000
 # epochs
-num_epochs = 50  #TODO
+num_epochs = 50  
 # eta range
-eta_range = (1e-1, 1e-5) #TODO
+eta_range = (1e-1, 1e-5) 
 # -----
+
+# Define plots
+fig, axs = plt.subplots(2, 2)
+
 
 # Obtain coordinates in region A
 coords_xA, coords_yA = generate_coords_in_moon(r, w, d, int(n_train_coord/2))
@@ -54,30 +58,75 @@ pairs_io_B = [[[coords_xB[i], coords_yB[i]], -1] for i in range(len(coords_yB))]
 pairs_io = pairs_io_A + pairs_io_B
 
 # ---- Train perceptron 
-pesos, eta_values = perceptron.train_perceptron(eta_range, num_epochs,pairs_io)
-print(pesos)
-print(eta_values[-1])
+pesos, eta_values, MSE_values = perceptron.train_perceptron(eta_range, num_epochs,pairs_io)
 print(len(eta_values))
-
 # Plot training coordinates
-plt.scatter(coords_xA, coords_yA)
-plt.scatter(coords_xB, coords_yB, marker="x")
-plt.grid(True)
+axs[0,0].set_title('Tranning')
+axs[0,0].set_xlabel('x1')
+axs[0,0].set_ylabel('x2')
+axs[0,0].scatter(coords_xA, coords_yA)
+axs[0,0].scatter(coords_xB, coords_yB, marker="x")
+axs[0,0].grid(True)
 
 # Plot the hyperplane TODO change how the line is plotted
 x1 = np.arange(-r-w, 2*r+w, 0.05)
 x2 = -pesos[1]/pesos[2] * x1 - pesos[0]/pesos[2]
-plt.plot(x1,x2, color = "blue", label = "div")
-plt.show()
+axs[0,0].plot(x1,x2, color = "blue")
+axs[1,1].plot(x1,x2, color = "blue")
+
+# Plot eta
+epochs = np.arange(1,len(eta_values)+1,1)
+axs[0,1].plot(epochs,eta_values)
+axs[0,1].set_title('Eta')
+axs[0,1].set_xlabel('epochs')
+axs[0,1].set_ylabel('eta')
+
+# Plot MSE
+axs[1,0].plot(epochs, MSE_values)
+axs[1,0].set_title('Mean square error')
+axs[1,0].set_xlabel('epochs')
+axs[1,0].set_ylabel('MSE')
+
+
 
 # ------ Test perceptron 
-"""
-print("Entradas   Exp.Res   Obt.Res")
-print("----------------------------")
+# Generate pairs
+# Region A
+coords_xA, coords_yA = generate_coords_in_moon(r, w, d, int(n_test_coord/2))
+# Region B
+coords_xB, coords_yB = generate_coords_in_moon(r, w, d, int(n_test_coord/2), "B")
+pairs_io_A = [[[coords_xA[i], coords_yA[i]], 1] for i in range(len(coords_yA))]
+pairs_io_B = [[[coords_xB[i], coords_yB[i]], -1] for i in range(len(coords_yB))]
+pairs_io = pairs_io_A + pairs_io_B
+
+# Print results
+print("Entradas   Exp.Res   Obt.Res   Success")
+print("--------------------------------------")
+errors = 0
 for pair in pairs_io:
+    success = True
     inputs = pair[0]
-    perceptron.set_inputs(pair[0])
+    perceptron.set_inputs(inputs)
     response_obtained = perceptron.compute_output()
     expected_response = pair[1]
-    print(inputs, "\t  ",expected_response, "   ",response_obtained)
-    """
+    if response_obtained != expected_response:
+        errors += 1
+        success = False
+    print(inputs, "\t  ",expected_response, "   ",response_obtained[0], "    ", success)
+
+# Plot test
+axs[1,1].set_title('Test')
+axs[1,1].set_xlabel('x1')
+axs[1,1].set_ylabel('x2')
+axs[1,1].scatter(coords_xA, coords_yA)
+axs[1,1].scatter(coords_xB, coords_yB, marker="x")
+axs[1,1].grid(True)
+
+# Print error rate
+print(f"Found {errors} errors")
+error_rate = (n_test_coord/(n_test_coord-errors) * 100)-100
+print(f"The error rate is: {error_rate}%")
+
+# Show graphs
+plt.tight_layout()
+plt.show()

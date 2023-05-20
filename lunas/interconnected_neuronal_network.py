@@ -172,15 +172,20 @@ class InterconNeuralNet:
         MSE_values: list
             List that contains the medium square error values during each epoch
     """
-    def train_perceptron(self, eta_range, num_epochs, pairs_io):
+    def train_perceptron(self, eta_range, num_epochs, pairs_io, stop_at_conv = False):
         eta = eta_range[0]
         eta_step = (eta_range[0]-eta_range[1])/num_epochs
         eta_values = []
-        eta_values.append(eta)
-
+        MSE_values = []
+        
         for i in range(num_epochs):
             d_array = []
             y_array =[]
+            MSE = 0
+            # Decrease eta    
+            eta -= eta_step
+            # Add eta to its list
+            eta_values.append(eta)
             for pair in pairs_io:
                 counter = 0
                 # Set inputs x(n)
@@ -193,13 +198,18 @@ class InterconNeuralNet:
                 self.weights[0] = self.weights[0] + eta * (d - y) * self.inputs
                 d_array.append(d)
                 y_array.append(y[0])
-                
-            # Decrease eta    
-            eta -= eta_step
-            # Add eta to its list
-            eta_values.append(eta)
+                MSE += (d - y)**2
+            # Compute MSE
+            MSE = MSE/len(pairs_io)  
+            MSE_values.append(MSE)
+
+            # Check if weights did not change for the set of inputs used in training
+            if stop_at_conv and (y_array == d_array):
+                # Return the matrix of weights, eta_values and MSE_values
+                return self.weights[0][0], eta_values, MSE_values
+             
             
-        return self.weights[0][0], eta_values[:-1]
+        return self.weights[0][0], eta_values, MSE_values
 
     def compute_output(self):
         """

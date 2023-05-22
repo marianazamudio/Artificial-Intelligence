@@ -7,7 +7,7 @@
 # perceptron during 50 epochs to classify points 
 # in a cartesian plane. 
 # Each class is a set of points inside a moon area
-# defined by its radious, width and distance.
+# defined by its radius, width and distance.
 # The MCE is computed and ploted for each epoch.
 # After the trainning with 1000 points of data, the 
 # percepton is tested with 2000 points of data, and the
@@ -18,27 +18,26 @@ from interconnected_neuronal_network import InterconNeuralNet
 import matplotlib.pyplot as plt
 import numpy as np
 
-# --- Define moon data 
+# --- Define customizable data 
 # Center radious of the moon 
-r = 3  
+r = 10  
 # Vertical distance between center of moon 
 # in region A and moon in region B
-d = -0.5
+d = 0
 # Width of the moons 
-w = 1  
+w = 6  
 # num coordinates for trainning
 n_train_coord = 1000
 # num coordinates for testing 
 n_test_coord = 2000
 # epochs
 num_epochs = 50  
-# eta range
+# eta range in which it will lineatly vary during training
 eta_range = (1e-1, 1e-5) 
 # -----
 
 # Define plots
 fig, axs = plt.subplots(2, 2)
-
 
 # Obtain coordinates in region A
 coords_xA, coords_yA = generate_coords_in_moon(r, w, d, int(n_train_coord/2))
@@ -46,11 +45,11 @@ coords_xA, coords_yA = generate_coords_in_moon(r, w, d, int(n_train_coord/2))
 # Obtain coordinates in region B
 coords_xB, coords_yB = generate_coords_in_moon(r, w, d, int(n_train_coord/2), "B")
 
-# Initialize the single layer perceptrons
+# Initialize the single layer perceptron
 inputs = [0,0] 
 num_layers = 1
 num_neurons = [1]
-perceptron = InterconNeuralNet(inputs, num_layers, num_neurons, 3)
+perceptron = InterconNeuralNet([0,0], num_layers, num_neurons, 3)
 
 # Get pairs input- otput [[[x1, x2], output], ....[[x1, x2], output]]
 pairs_io_A = [[[coords_xA[i], coords_yA[i]], 1] for i in range(len(coords_yA))]
@@ -60,7 +59,7 @@ pairs_io = pairs_io_A + pairs_io_B
 # ---- Train perceptron 
 pesos, eta_values, MSE_values = perceptron.train_perceptron(eta_range, num_epochs,pairs_io)
 print(len(eta_values))
-# Plot training coordinates
+# ---Plot training coordinates
 axs[0,0].set_title('Tranning')
 axs[0,0].set_xlabel('x1')
 axs[0,0].set_ylabel('x2')
@@ -68,20 +67,25 @@ axs[0,0].scatter(coords_xA, coords_yA)
 axs[0,0].scatter(coords_xB, coords_yB, marker="x")
 axs[0,0].grid(True)
 
-# Plot the hyperplane TODO change how the line is plotted
-x1 = np.arange(-r-w, 2*r+w, 0.05)
-x2 = -pesos[1]/pesos[2] * x1 - pesos[0]/pesos[2]
+# ---- Plot the hyperplane 
+if pesos[2] != 0:
+    x1 = np.arange(-r-w, 2*r+w, 0.05)
+    x2 = -pesos[1]/pesos[2] * x1 - pesos[0]/pesos[2]
+# Case for when the hiperplane has an inf slope 
+else:
+    x2 = np.arange(-r-w-d,r+w, 0.05)
+    x1 = -pesos[0]/pesos[1] + x2*0
 axs[0,0].plot(x1,x2, color = "blue")
 axs[1,1].plot(x1,x2, color = "blue")
 
-# Plot eta
+# --- Plot eta
 epochs = np.arange(1,len(eta_values)+1,1)
 axs[0,1].plot(epochs,eta_values)
 axs[0,1].set_title('Eta')
 axs[0,1].set_xlabel('epochs')
 axs[0,1].set_ylabel('eta')
 
-# Plot MSE
+# --- Plot MSE
 axs[1,0].plot(epochs, MSE_values)
 axs[1,0].set_title('Mean square error')
 axs[1,0].set_xlabel('epochs')
@@ -114,7 +118,7 @@ for pair in pairs_io:
         success = False
     print(inputs, "\t  ",expected_response, "   ",response_obtained[0], "    ", success)
 
-# Plot test
+# --- Plot test
 axs[1,1].set_title('Test')
 axs[1,1].set_xlabel('x1')
 axs[1,1].set_ylabel('x2')
@@ -122,11 +126,11 @@ axs[1,1].scatter(coords_xA, coords_yA)
 axs[1,1].scatter(coords_xB, coords_yB, marker="x")
 axs[1,1].grid(True)
 
-# Print error rate
+# --- Print error rate
 print(f"Found {errors} errors")
-error_rate = (n_test_coord/(n_test_coord-errors) * 100)-100
+error_rate = (errors/n_test_coord) * 100
 print(f"The error rate is: {error_rate}%")
 
-# Show graphs
+# --- Show graphs
 plt.tight_layout()
 plt.show()

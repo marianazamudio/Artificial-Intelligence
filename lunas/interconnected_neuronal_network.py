@@ -157,9 +157,13 @@ class InterconNeuralNet:
             Integer that indicates the number of epochs being performed to
             train the perceptron
 
-        pairs_io: List
-            List of Lists of size 2 with pairs input vector and desired response
-            [x(i), d(i)]
+        tr_inputs: Numpy array
+            Numpy array of size 2xn each column is a coordinate in a cartesian plane.
+            It stores n trainning data points. Contains trainning data points of each class
+            the first ones corresponds to class with d(n)= 1 and the following to the class with d(n)= -1.
+
+        class_indx: int
+            Index that indicates the separation between trainning data of each class in the tr_input array
 
         Outputs
         -------
@@ -172,35 +176,53 @@ class InterconNeuralNet:
         MSE_values: list
             List that contains the medium square error values during each epoch
     """
-    def train_perceptron(self, eta_range, num_epochs, pairs_io, stop_at_conv = False):
+    def train_perceptron(self, eta_range, num_epochs, tr_inputs, class_indx, stop_at_conv = False):
+        # Initialize eta
         eta = eta_range[0]
+        # Compute eta step
         eta_step = (eta_range[0]-eta_range[1])/num_epochs
+        # Initialize lists to store eta values and MSE during each epoch
         eta_values = []
         MSE_values = []
         
+        # Iterate between epochs
         for i in range(num_epochs):
-            d_array = []
-            y_array =[]
+            if stop_at_conv:
+                d_array = []
+                y_array =[]
+
+            # Initialize mean square error
             MSE = 0
             # Decrease eta    
             eta -= eta_step
             # Add eta to its list
             eta_values.append(eta)
-            for pair in pairs_io:
-                counter = 0
+            # Initialize desired response
+            d = 1
+            # Itera entre entradas 
+            for i in range(tr_inputs.shape[1]):  # i = 0:num_col
+                # Change desired response
+                if i == class_indx:
+                    d = -1
+        
+                # Extraer columna i
+                pair = tr_inputs[:,i]
+                pair = pair.tolist()
                 # Set inputs x(n)
-                self.set_inputs(pair[0])
-                # Obtain desired response d(n)
-                d = pair[1]
+                self.set_inputs(pair)
+                
                 # Compute actual response y(n)
                 y = self.compute_output()
                 # Adaptation of weight vector 
                 self.weights[0] = self.weights[0] + eta * (d - y) * self.inputs
-                d_array.append(d)
-                y_array.append(y[0])
+                # Compute sum of SE
                 MSE += (d - y)**2
+                if stop_at_conv:
+                    d_array.append(d)
+                    y_array.append(y[0])
+            
             # Compute MSE
-            MSE = MSE/len(pairs_io)  
+            MSE = MSE/len(tr_inputs)  
             MSE_values.append(MSE)
 
             # Check if weights did not change for the set of inputs used in training
@@ -210,6 +232,8 @@ class InterconNeuralNet:
              
             
         return self.weights[0][0], eta_values, MSE_values
+
+
 
     def compute_output(self):
         """

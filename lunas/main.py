@@ -25,7 +25,7 @@ r = 10
 # in region A and moon in region B
 d = 0
 # Width of the moons 
-w = 6  
+w = 10
 # num coordinates for trainning
 n_train_coord = 1000
 # num coordinates for testing 
@@ -39,32 +39,29 @@ eta_range = (1e-1, 1e-5)
 # Define plots
 fig, axs = plt.subplots(2, 2)
 
-# Obtain coordinates in region A
-coords_xA, coords_yA = generate_coords_in_moon(r, w, d, int(n_train_coord/2))
+# Obtain coordinates in region A to do the training of perceptron
+coords_train = generate_coords_in_moon(r, w, d, int(n_train_coord/2))
 
-# Obtain coordinates in region B
-coords_xB, coords_yB = generate_coords_in_moon(r, w, d, int(n_train_coord/2), "B")
+# Obtain coordinates in region B and concatete them with the ones in region A
+coords_train = np.hstack((coords_train, generate_coords_in_moon(r, w, d, int(n_train_coord/2), "B")))
 
-# Initialize the single layer perceptron
-inputs = [0,0] 
+# Initialize the single layer perceptron 
 num_layers = 1
 num_neurons = [1]
 perceptron = InterconNeuralNet([0,0], num_layers, num_neurons, 3)
 
-# Get pairs input- otput [[[x1, x2], output], ....[[x1, x2], output]]
-pairs_io_A = [[[coords_xA[i], coords_yA[i]], 1] for i in range(len(coords_yA))]
-pairs_io_B = [[[coords_xB[i], coords_yB[i]], -1] for i in range(len(coords_yB))]
-pairs_io = pairs_io_A + pairs_io_B
-
 # ---- Train perceptron 
-pesos, eta_values, MSE_values = perceptron.train_perceptron(eta_range, num_epochs,pairs_io)
-print(len(eta_values))
+pesos, eta_values, MSE_values = perceptron.train_perceptron(eta_range, num_epochs, \
+                                                            tr_inputs=coords_train, \
+                                                            class_indx=int(n_train_coord/2))
+
 # ---Plot training coordinates
 axs[0,0].set_title('Tranning')
 axs[0,0].set_xlabel('x1')
 axs[0,0].set_ylabel('x2')
-axs[0,0].scatter(coords_xA, coords_yA)
-axs[0,0].scatter(coords_xB, coords_yB, marker="x")
+limit = int(n_train_coord/2)
+axs[0,0].scatter(coords_train[0,:limit], coords_train[1,:limit])
+axs[0,0].scatter(coords_train[0, limit:], coords_train[1, limit:], marker="x")
 axs[0,0].grid(True)
 
 # ---- Plot the hyperplane 
@@ -74,7 +71,9 @@ if pesos[2] != 0:
 # Case for when the hiperplane has an inf slope 
 else:
     x2 = np.arange(-r-w-d,r+w, 0.05)
-    x1 = -pesos[0]/pesos[1] + x2*0
+    x1 = np.ones(x2.shape[0])
+    x1 = -pesos[0]/pesos[1] * x1
+    print(x1)
 axs[0,0].plot(x1,x2, color = "blue")
 axs[1,1].plot(x1,x2, color = "blue")
 
@@ -94,39 +93,42 @@ axs[1,0].set_ylabel('MSE')
 
 
 # ------ Test perceptron 
-# Generate pairs
+limit = int(n_test_coord/2)
+# Generate inputs
 # Region A
-coords_xA, coords_yA = generate_coords_in_moon(r, w, d, int(n_test_coord/2))
+coords_test = generate_coords_in_moon(r, w, d, limit)
 # Region B
-coords_xB, coords_yB = generate_coords_in_moon(r, w, d, int(n_test_coord/2), "B")
-pairs_io_A = [[[coords_xA[i], coords_yA[i]], 1] for i in range(len(coords_yA))]
-pairs_io_B = [[[coords_xB[i], coords_yB[i]], -1] for i in range(len(coords_yB))]
-pairs_io = pairs_io_A + pairs_io_B
-
-# Print results
-print("Entradas   Exp.Res   Obt.Res   Success")
-print("--------------------------------------")
-errors = 0
-for pair in pairs_io:
-    success = True
-    inputs = pair[0]
-    perceptron.set_inputs(inputs)
-    response_obtained = perceptron.compute_output()
-    expected_response = pair[1]
-    if response_obtained != expected_response:
-        errors += 1
-        success = False
-    print(inputs, "\t  ",expected_response, "   ",response_obtained[0], "    ", success)
+coords_test = np.hstack((coords_test, generate_coords_in_moon(r, w, d, limit, "B")))
 
 # --- Plot test
 axs[1,1].set_title('Test')
 axs[1,1].set_xlabel('x1')
 axs[1,1].set_ylabel('x2')
-axs[1,1].scatter(coords_xA, coords_yA)
-axs[1,1].scatter(coords_xB, coords_yB, marker="x")
+axs[1,1].scatter(coords_test[0,:limit], coords_test[1,:limit])
+axs[1,1].scatter(coords_test[0, limit:], coords_test[1, limit:], marker="x")
 axs[1,1].grid(True)
 
-# --- Print error rate
+# ---- Compute error rate and print errors
+print("Entradas                           Exp.Res    Obt.Res ")
+print("------------------------------------------------------")
+# Initalize num of errors and expected response
+errors = 0
+expected_response = 1
+
+for i in range(coords_test.shape[1]):
+    if i == 1000:
+        expected_response = -1
+    inputs = coords_test[:,i]
+    inputs = inputs.tolist()
+    perceptron.set_inputs(inputs)
+    actual_response = perceptron.compute_output()
+
+    if actual_response != expected_response:
+        errors +=1
+        print(inputs, expected_response, actual_response)
+
+
+# Print error rate
 print(f"Found {errors} errors")
 error_rate = (errors/n_test_coord) * 100
 print(f"The error rate is: {error_rate}%")

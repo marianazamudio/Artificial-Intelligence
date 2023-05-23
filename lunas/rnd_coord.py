@@ -6,6 +6,7 @@
 import random
 import math
 import matplotlib.pyplot as plt
+import numpy as np
 
 def generate_coords_in_moon(r, w, d, num_coord, region='A'):
     """
@@ -39,10 +40,6 @@ def generate_coords_in_moon(r, w, d, num_coord, region='A'):
     rad_min = r - w/2
     rad_max = r + w/2
     
-    # Initialize coords list
-    coords_x = []
-    coords_y = []
-    
     # Iterate to create each coordinate
     for i in range(num_coord):
         # Choose a random radious and angle between the stablished limits
@@ -54,10 +51,14 @@ def generate_coords_in_moon(r, w, d, num_coord, region='A'):
         y = r*math.sin(theta) + center[1]
         
         # Add coordinates to the list
-        coords_x.append(x)
-        coords_y.append(y)
+        if i == 0:
+            coords = np.array([[x], [y]])
+        else:
+            temp = np.array([[x], [y]])
+            coords = np.hstack((coords,temp))
 
-    return (coords_x, coords_y)
+
+    return (coords)
 
 if __name__ == "__main__":
     # --------------Test
@@ -65,18 +66,18 @@ if __name__ == "__main__":
     r = 3  
     # Vertical distance between center of moon 
     # in region A and moon in region B
-    d = -2 
+    d = 0
     # width of the moons 
     w = 1  
 
     # Obtener coordenadas en region A
-    coords_xA, coords_yA = generate_coords_in_moon(r, w, d, 500)
+    coords_A = generate_coords_in_moon(r, w, d, 500)
 
     # Obtener coordenadas en region B
-    coords_xB, coords_yB = generate_coords_in_moon(r,w,d,500, "B")
+    coords_B= generate_coords_in_moon(r,w,d,500, "B")
 
     # Graficar coordenadas
-    plt.scatter(coords_xA, coords_yA)
-    plt.scatter(coords_xB, coords_yB, marker="x")
+    plt.scatter(coords_A[0,:], coords_A[1,:])
+    plt.scatter(coords_B[0,:], coords_B[1,:], marker="x")
     plt.grid(True)
     plt.show()

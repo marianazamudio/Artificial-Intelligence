@@ -145,6 +145,10 @@ class InterconNeuralNet:
         # Store weights as a network attribute
         self.weights = weights.copy()
 
+        # TODO: Assign cambio anterior accordingly with num neurons and inputs of each neuron
+        a1 = np.array([0,0, 0])
+        self.cambio_anterior = [a1,a1,a1]
+
     """
         Modifies inputs of the neural net, adds input X0 = +1 for the bias
         automatically, no need to enter it. 
@@ -330,28 +334,67 @@ class InterconNeuralNet:
             e = d_n - o_n
 
 
-    def back_computation(self, d):
+    def back_computation(self,eta,alpha, d):
         # List of neurons in each layer, added the input layer
         neurons_in_layers = [len(self.inputs)-1] + self.neurons_in_layers
-        # List of outputs of neurons, added the input values
-        y = self.inputs[1:] + self.outputs.tolist()
-        print(y, "y")
+        
+        # Inicializar matriz de gradientes locales, cambios actuales y anteriores
+        local_gradients = np.zeros((self.num_layers, max(neurons_in_layers)))
         
         # Iterate between layers, from the last one to the first one
-        for layer in range(self.num_layers, -1, -1):
+        for layer in range(self.num_layers, 0, -1):
             # Iterate between neurons in the current layer
             for neuron in range(neurons_in_layers[layer]):
+                # List of outputs of neurons, added the input values
+                y = self.inputs[1:] + self.outputs.tolist()
+
+                # Search indx foy y of the curr layer 
+                start_curr_lay = int(sum(neurons_in_layers[:layer]))
+                idx_neuron = start_curr_lay + neuron
+
+                # Obtain prev layer outputs
+                start_prev_lay = start_curr_lay - neurons_in_layers[layer-1]
+                print(start_curr_lay, start_prev_lay)
+                y_prev_layer = y[start_prev_lay:start_curr_lay]
+                
                 # ULTIMA CAPA
                 if layer == self.num_layers:
-                    idx_neuron = sum(neurons_in_layers[:layer]) + neuron
                     print(idx_neuron)
-                    #delta = a*(d-y[idx_neuron]*y[idx_neuron]*(1-y[idx_neuron])
-                    #print(delta)
+                    # Compute local gradient
+                    local_gradients[layer-1, neuron] = self.a*(d-y[idx_neuron])*y[idx_neuron]*(1-y[idx_neuron])
+                    print(local_gradients, "lg")
+                    
+                    # Compute cambio_actual
+                    cambio_actual = eta* np.dot(local_gradients[layer-1, neuron], np.insert(y_prev_layer, 0, 1))
+                    print(cambio_actual)
+                    # Cambiar pesos
+                    idx = sum(self.neurons_in_layers[:layer-1]) + neuron
+                    self.weights[layer-1][neuron] = self.weights[layer-1][neuron] + cambio_actual+ alpha*self.cambio_anterior[idx]
+                    # Update cambio anterior
+                    self.cambio_anterior[idx] = cambio_actual
 
 
                 # CAPA OCULTA
                 else:
-                    pass
+                    local_gradients[layer-1, neuron] = 0
+                    for k in range(neurons_in_layers[layer+1]):
+                        local_gradients[layer-1, neuron] = local_gradients[layer-1, neuron] + \
+                                                           self.a*y[idx_neuron] * (1-y[idx_neuron]) *\
+                                                           local_gradients[layer,k]
+                    
+                    cambio_actual = eta*local_gradients[layer-1, neuron] * np.insert(y_prev_layer, 0, 1)
+                    idx = sum(self.neurons_in_layers[:layer-1]) + neuron
+                    print(layer-1, neuron)
+                    self.weights[layer-1][neuron] = self.weights[layer-1][neuron] + cambio_actual + \
+                                                    alpha * self.cambio_anterior[idx]
+                    
+                    self.cambio_anterior[idx] = cambio_actual
+
+                # Calcula la salida de la neurona y actualiza
+                self.compute_output()
+                print(self.outputs, "OUTPUTS")
+                print(local_gradients)
+                
 
 
 

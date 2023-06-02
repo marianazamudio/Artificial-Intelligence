@@ -7,6 +7,7 @@
 # --------------------------------------------------- #
 import numpy as np
 import math
+import random
 
 class InterconNeuralNet:
     """
@@ -53,7 +54,7 @@ class InterconNeuralNet:
     """
     
 
-    def __init__(self, inputs, num_layers, neurons_in_layers, act_funct):
+    def __init__(self, inputs, num_layers, neurons_in_layers, act_funct, a=1, wt="r"):
         """ 
             Inicializa una estancia de la clase InterconNeuralNet
 
@@ -77,11 +78,18 @@ class InterconNeuralNet:
                 2 --> Sigmoid (Sinoide)
                 3 --> Signum (Signo)
                 4 --> Hiperbolic tangent
+
+            wt: char
+                Type of inicialization of weights
+                r ---> random uniform [-1, 1]
+                o ---> ones
+                z ---> zeros
         """
         # Store customizable parameters
         self.inputs = [1] + inputs
         self.num_layers =  num_layers
         self.neurons_in_layers =  neurons_in_layers
+        self.a = a
 
         # Select activation function
         if act_funct == 1:
@@ -109,8 +117,12 @@ class InterconNeuralNet:
                 rows = self.neurons_in_layers[0]
                 columns = len(self.inputs)
                 # Create matrix with random weights for the layer
-                #weights_layer = np.zeros((rows, columns))
-                weights_layer = np.array([[1, -10, 3]])
+                if wt == 'z':
+                    weights_layer = np.zeros((rows, columns))
+                elif wt == 'o':
+                    weights_layer = np.ones((rows, columns))
+                elif wt == 'r':
+                    weights_layer = np.random.uniform(low=-1, high=1, size=(rows, columns))
                 
                 # Append weights of the layer to the array with all the weights
                 weights.append(weights_layer)
@@ -118,7 +130,14 @@ class InterconNeuralNet:
                 rows = self.neurons_in_layers[i+1] 
                 columns = self.neurons_in_layers[i] 
                 # Create matrix with random weights for the layer
-                weights_layer = np.zeros((rows,columns))
+                # A column is added for the bias of each neuron
+                if wt == 'z':
+                    weights_layer = np.zeros((rows,columns+1))
+                elif wt == 'o':
+                    weights_layer = np.ones((rows,columns+1))
+                elif wt == 'r':
+                    weights_layer = np.random.uniform(low =-1, high=1, size=(rows, columns+1))
+
                 # Append weights of the layer to the array with all the weights
                 weights.append(weights_layer)
         # ---
@@ -258,6 +277,8 @@ class InterconNeuralNet:
             else: 
                 finish = start + self.neurons_in_layers[layer-1]
                 inputs_of_layer = self.outputs[start:finish]
+                # Add a '1' at the begginning for the bias
+                inputs_of_layer = np.insert(inputs_of_layer, 0, 1)
             
             # Iterate between neurons in current layer
             for i in range(self.neurons_in_layers[layer]):
@@ -271,15 +292,15 @@ class InterconNeuralNet:
                 weight_vect =  weight_mat[i,:]
 
                 # wT(i) x(i)
-                #print(inputs_of_layer, "inputs")
-                #print(weight_mat, "mat")
-                #print(weight_vect, "vector")
+                #print(inputs_of_layer)
+                #print(weight_vect)
                 v_k = np.dot(inputs_of_layer, weight_vect)
                 #print(v_k, "v_k")
-                # Aplica función de activación 
-                y_k = self.act_funct(v_k)
 
-                # Guarda resultado en el vector de salidas 
+                # Activation function
+                y_k = self.act_funct(v_k, self.a)
+
+                # Save output of the neuron 
                 self.outputs[current_neuron-1] = y_k
 
                 current_neuron +=1
@@ -289,7 +310,57 @@ class InterconNeuralNet:
                 start += self.neurons_in_layers[layer-1]
         
         
-        return self.outputs[-self.neurons_in_layers[-1]:]
+        return self.outputs
+    
+    def trainning_multi_layer(self, alpha, x, d):
+        # TODO: Iterar en épocas
+        indexes = list(range(len(x)))
+        indexes = random.shuffle(indexes)
+        
+        for n in indexes:
+            x_n = x[n]
+            self.set_inputs(x_n)
+            d_n = d[n]
+
+            # Forward computation            
+            y = self.compute_output()
+            o_n = y[:self.neurons_in_layers[-1]]
+
+            # compute error
+            e = d_n - o_n
+
+
+    def back_computation(self, d):
+        # List of neurons in each layer, added the input layer
+        neurons_in_layers = [len(self.inputs)-1] + self.neurons_in_layers
+        # List of outputs of neurons, added the input values
+        y = self.inputs[1:] + self.outputs.tolist()
+        print(y, "y")
+        
+        # Iterate between layers, from the last one to the first one
+        for layer in range(self.num_layers, -1, -1):
+            # Iterate between neurons in the current layer
+            for neuron in range(neurons_in_layers[layer]):
+                # ULTIMA CAPA
+                if layer == self.num_layers:
+                    idx_neuron = sum(neurons_in_layers[:layer]) + neuron
+                    print(idx_neuron)
+                    #delta = a*(d-y[idx_neuron]*y[idx_neuron]*(1-y[idx_neuron])
+                    #print(delta)
+
+
+                # CAPA OCULTA
+                else:
+                    pass
+
+
+
+
+            
+
+
+
+
 
     @staticmethod
     def evaluate_threshold_func(v):
@@ -308,14 +379,14 @@ class InterconNeuralNet:
             raise ValueError("v is not a valid value")
 
     @staticmethod
-    def evaluate_sigmoid_func(v):  # Senoide
+    def evaluate_sigmoid_func(v, a):  # Senoide
         """
             Evaluates v in the sigmoid function  
 
             Returns: 
                 output: float in range [0,1]
         """
-        a = 1
+        #a = 1
         return 1/(1+math.exp(-a*v))
 
     @staticmethod

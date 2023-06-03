@@ -8,11 +8,12 @@
 from interconnected_neuronal_network import InterconNeuralNet
 import numpy as np
 import random
+import matplotlib.pyplot as plt
 
 max_epochs = 500
 alpha = 0.01
-a = 10
-eta = 0.1
+a = 2
+eta = 0.5
 
 # Initialize the multi layer perceptron
 inputs = [0,0]
@@ -21,9 +22,17 @@ num_neurons = [2,1]
 per_mult_layer = InterconNeuralNet(inputs, num_layers, num_neurons, 2, a)
 print(per_mult_layer.weights)
 
+#capa_1 = np.array([[-1.5, 1, 1],[-0.5, 1, 1]])
+#capa_2 = np.array([[-0.5, -2, 1]])
+
+#per_mult_layer.weights = [capa_1, capa_2]
+
 # Initialize data set
 data_set = [[0,0], [0,1], [1,0], [1,1]]
-d =[1,0,0,1]
+d =[0,1,1,0]
+
+# List to plot MSE
+MSE_list = []
 
 for i in range(max_epochs):
     # Intialize list with idx for data set
@@ -31,12 +40,14 @@ for i in range(max_epochs):
     print(idx_list, "idx_list")
     # Permutate list
     random.shuffle(idx_list)
-    print(idx_list, "idx_list")
+    #print(idx_list, "idx_list")
 
     # Iterate in data set
     o = []
+    
     for idx in idx_list:
         # Configurar entradas
+        print(data_set[idx], "DS-----------------------------------------")
         per_mult_layer.set_inputs(data_set[idx])
         # Configurar valores deseados
         d_n = d[idx] 
@@ -50,22 +61,29 @@ for i in range(max_epochs):
         o.append(o_n)
     
     # Compute MSE
-    print(d)
-    print(o)
     MSE = (np.array(d) - np.array(o))
     MSE = np.square(MSE)
     MSE = np.sum(MSE)/(len(d))
-    print(MSE)
+    print(MSE, "mse")
+    MSE_list.append(MSE)
+    print(o, "o")
+    print(d,"d")
     #input()
 
     # break condition 
-    if MSE == 0:
+    if MSE < 0.001:
         break
 
 print(f"termine en {i} epocas")
 
+# Graficar
+x = np.arange(len(MSE_list))
+plt.plot(x, MSE_list)
+
+
+#input()
 # TEST 
-print("AND OPERATION")
+print("XOR OPERATION")
 print("----------------------------")
 print("Entradas   Exp.Res   Obt.Res")
 print("----------------------------")
@@ -73,3 +91,6 @@ for (x_n,d_n) in zip(data_set, d):
     per_mult_layer.set_inputs(x_n)
     o_n = per_mult_layer.compute_output()[-1]
     print(x_n, "\t  ",d_n, "   ",o_n)
+
+
+plt.show()

@@ -299,6 +299,8 @@ class InterconNeuralNet:
                 #print(inputs_of_layer)
                 #print(weight_vect)
                 v_k = np.dot(inputs_of_layer, weight_vect)
+                #print(inputs_of_layer)
+                #print(weight_vect)
                 #print(v_k, "v_k")
 
                 # Activation function
@@ -354,7 +356,7 @@ class InterconNeuralNet:
 
                 # Obtain prev layer outputs
                 start_prev_lay = start_curr_lay - neurons_in_layers[layer-1]
-                print(start_curr_lay, start_prev_lay)
+                #print(start_curr_lay, start_prev_lay)
                 y_prev_layer = y[start_prev_lay:start_curr_lay]
                 
                 # ULTIMA CAPA
@@ -362,14 +364,24 @@ class InterconNeuralNet:
                     print(idx_neuron)
                     # Compute local gradient
                     local_gradients[layer-1, neuron] = self.a*(d-y[idx_neuron])*y[idx_neuron]*(1-y[idx_neuron])
-                    print(local_gradients, "lg")
+                    print(self.a, "a")
+                    print(d, "d")
+                    print(y, "y")
+                    print(local_gradients, "lg", "ultima capa")
+                    #input()
                     
                     # Compute cambio_actual
-                    cambio_actual = eta* np.dot(local_gradients[layer-1, neuron], np.insert(y_prev_layer, 0, 1))
-                    print(cambio_actual)
+                    print(local_gradients[layer-1, neuron])
+                    cambio_actual = eta * local_gradients[layer-1, neuron] * np.insert(y_prev_layer, 0, 1)
+                    print(cambio_actual, "cambio actual")
+                    #input()
+
                     # Cambiar pesos
                     idx = sum(self.neurons_in_layers[:layer-1]) + neuron
+                    print(self.weights)
                     self.weights[layer-1][neuron] = self.weights[layer-1][neuron] + cambio_actual+ alpha*self.cambio_anterior[idx]
+                    print(self.weights, "se actualizaron pesos")
+                    
                     # Update cambio anterior
                     self.cambio_anterior[idx] = cambio_actual
 
@@ -378,21 +390,25 @@ class InterconNeuralNet:
                 else:
                     local_gradients[layer-1, neuron] = 0
                     for k in range(neurons_in_layers[layer+1]):
-                        local_gradients[layer-1, neuron] = local_gradients[layer-1, neuron] + \
-                                                           self.a*y[idx_neuron] * (1-y[idx_neuron]) *\
-                                                           local_gradients[layer,k]
+                        local_gradients[layer-1, neuron] += local_gradients[layer,k]*self.weights[layer][k][neuron+1]   #todo
+                        print(self.weights[layer][k][neuron+1], "elemento")
+                    local_gradients[layer-1, neuron] *= self.a*y[idx_neuron] * (1-y[idx_neuron])
+
+                    print(local_gradients, f"se actualizo en capa {layer}, neurona {neuron}")
                     
                     cambio_actual = eta*local_gradients[layer-1, neuron] * np.insert(y_prev_layer, 0, 1)
+                    print(cambio_actual, "cambio_Actual")
+                    #input()
                     idx = sum(self.neurons_in_layers[:layer-1]) + neuron
                     print(layer-1, neuron)
+                    print(self.weights)
                     self.weights[layer-1][neuron] = self.weights[layer-1][neuron] + cambio_actual + \
                                                     alpha * self.cambio_anterior[idx]
-                    
+                    print(self.weights, "se actualizó pesos")
+                    #input()
                     self.cambio_anterior[idx] = cambio_actual
 
                 # Calcula la salida de la neurona y actualiza
-                self.compute_output()
-                print(self.outputs, "OUTPUTS")
                 print(local_gradients)
                 
 

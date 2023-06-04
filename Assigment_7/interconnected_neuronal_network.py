@@ -39,6 +39,10 @@ class InterconNeuralNet:
             List that contains weight matrices for each layer as
             numpy biderectional arrays
             This is initialized with weights equal to 0
+
+        a : float greater than 0
+            coeficient on exponential functions (e^-av) used to 
+            determine the output on tanh and sigmoid functions
         
         outputs: numpy array
             Array that stores the output value of each neuron in the 
@@ -318,29 +322,23 @@ class InterconNeuralNet:
         
         return self.outputs
     
-    def trainning_multi_layer(self, alpha, x, d):
-        # TODO: Iterar en épocas
-        indexes = list(range(len(x)))
-        indexes = random.shuffle(indexes)
-        
-        for n in indexes:
-            x_n = x[n]
-            self.set_inputs(x_n)
-            d_n = d[n]
-
-            # Forward computation            
-            y = self.compute_output()
-            o_n = y[:self.neurons_in_layers[-1]]
-
-            # compute error
-            e = d_n - o_n
-
-
     def back_computation(self,eta,alpha, d):
-        # List of neurons in each layer, added the input layer
+        """
+        Updates the weights of the multilayer neural net, 
+        from the last layer to the most hidden layer of neurons.  
+            Parameters
+            ----------
+                eta: float in range (0,1)
+                alpha: float grater than 0
+                d: int in {0, 1}
+                    desired output acording to the input initialized 
+                    in the perceptron
+        """
+        # List of neurons in each layer, added the input layer 
+        # [1 2 1] ---> 1 input, 2 neurons in the second layer, 1 neuron in the output layer
         neurons_in_layers = [len(self.inputs)-1] + self.neurons_in_layers
         
-        # Inicializar matriz de gradientes locales, cambios actuales y anteriores
+        # Inicializar matriz de gradientes locales
         local_gradients = np.zeros((self.num_layers, max(neurons_in_layers)))
         
         # Iterate between layers, from the last one to the first one
@@ -364,16 +362,17 @@ class InterconNeuralNet:
                     print(idx_neuron)
                     # Compute local gradient
                     local_gradients[layer-1, neuron] = self.a*(d-y[idx_neuron])*y[idx_neuron]*(1-y[idx_neuron])
-                    print(self.a, "a")
-                    print(d, "d")
-                    print(y, "y")
-                    print(local_gradients, "lg", "ultima capa")
+                    #print(self.a, "a")
+                    #print(d, "d")
+                    #print(y, "y")
+                    #print(local_gradients, "lg", "ultima capa")
                     #input()
                     
                     # Compute cambio_actual
-                    print(local_gradients[layer-1, neuron])
+                    #print(local_gradients[layer-1, neuron])
+                    #                                                        [1  y_capa_previa]
                     cambio_actual = eta * local_gradients[layer-1, neuron] * np.insert(y_prev_layer, 0, 1)
-                    print(cambio_actual, "cambio actual")
+                    #print(cambio_actual, "cambio actual")
                     #input()
 
                     # Cambiar pesos

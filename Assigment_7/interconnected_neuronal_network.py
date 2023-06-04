@@ -362,53 +362,39 @@ class InterconNeuralNet:
                     print(idx_neuron)
                     # Compute local gradient
                     local_gradients[layer-1, neuron] = self.a*(d-y[idx_neuron])*y[idx_neuron]*(1-y[idx_neuron])
-                    #print(self.a, "a")
-                    #print(d, "d")
-                    #print(y, "y")
-                    #print(local_gradients, "lg", "ultima capa")
-                    #input()
                     
-                    # Compute cambio_actual
-                    #print(local_gradients[layer-1, neuron])
-                    #                                                        [1  y_capa_previa]
-                    cambio_actual = eta * local_gradients[layer-1, neuron] * np.insert(y_prev_layer, 0, 1)
-                    #print(cambio_actual, "cambio actual")
-                    #input()
-
-                    # Cambiar pesos
-                    idx = sum(self.neurons_in_layers[:layer-1]) + neuron
-                    print(self.weights)
-                    self.weights[layer-1][neuron] = self.weights[layer-1][neuron] + cambio_actual+ alpha*self.cambio_anterior[idx]
-                    print(self.weights, "se actualizaron pesos")
-                    
-                    # Update cambio anterior
-                    self.cambio_anterior[idx] = cambio_actual
-
 
                 # CAPA OCULTA
                 else:
                     local_gradients[layer-1, neuron] = 0
                     for k in range(neurons_in_layers[layer+1]):
-                        local_gradients[layer-1, neuron] += local_gradients[layer,k]*self.weights[layer][k][neuron+1]   #todo
-                        print(self.weights[layer][k][neuron+1], "elemento")
+                        #                                   local gradient of neuron k of next layer * weight k,neuron
+                        local_gradients[layer-1, neuron] += local_gradients[layer,k]*self.weights[layer][k][neuron+1]    # neuron+1 because weights include the bias in the first position
+                        #print(self.weights[layer][k][neuron+1], "elemento")
                     local_gradients[layer-1, neuron] *= self.a*y[idx_neuron] * (1-y[idx_neuron])
 
-                    print(local_gradients, f"se actualizo en capa {layer}, neurona {neuron}")
-                    
-                    cambio_actual = eta*local_gradients[layer-1, neuron] * np.insert(y_prev_layer, 0, 1)
-                    print(cambio_actual, "cambio_Actual")
-                    #input()
-                    idx = sum(self.neurons_in_layers[:layer-1]) + neuron
-                    print(layer-1, neuron)
-                    print(self.weights)
-                    self.weights[layer-1][neuron] = self.weights[layer-1][neuron] + cambio_actual + \
-                                                    alpha * self.cambio_anterior[idx]
-                    print(self.weights, "se actualizó pesos")
-                    #input()
-                    self.cambio_anterior[idx] = cambio_actual
+                    #print(local_gradients, f"se actualizo en capa {layer}, neurona {neuron}")
+                
+                # Compute weight change
+                idx = sum(self.neurons_in_layers[:layer-1]) + neuron
+                #                                                      [1   y_prev_layer]
+                cambio_actual = eta*local_gradients[layer-1, neuron] * np.insert(y_prev_layer, 0, 1) + \
+                                    alpha * self.cambio_anterior[idx]
+                
+                #print(cambio_actual, "cambio_Actual")
+                #input()
+                #print(layer-1, neuron)
+                #print(self.weights)
+                # Actualiza pesos
+                
+                # Change weights
+                self.weights[layer-1][neuron] = self.weights[layer-1][neuron] + cambio_actual 
+                                                    
+                #print(self.weights, "se actualizó pesos")
+                #input()
 
-                # Calcula la salida de la neurona y actualiza
-                print(local_gradients)
+                # Save actual change
+                self.cambio_anterior[idx] = cambio_actual
                 
 
 

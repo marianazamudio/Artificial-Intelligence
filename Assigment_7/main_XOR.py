@@ -11,7 +11,7 @@ import random
 import matplotlib.pyplot as plt
 
 # Tunning parameters
-max_epochs = 550
+max_epochs = 700
 alpha = 0.01
 a = 2
 eta = 0.5

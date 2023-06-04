@@ -10,7 +10,7 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 
-max_epochs = 500
+max_epochs = 1000
 alpha = 0.01
 a = 2
 eta = 0.5
@@ -24,15 +24,17 @@ print(per_mult_layer.weights)
 
 #capa_1 = np.array([[-1.5, 1, 1],[-0.5, 1, 1]])
 #capa_2 = np.array([[-0.5, -2, 1]])
-
 #per_mult_layer.weights = [capa_1, capa_2]
 
 # Initialize data set
 data_set = [[0,0], [0,1], [1,0], [1,1]]
-d =[0,1,1,0]
+d =[1,0,0,1]
 
 # List to plot MSE
 MSE_list = []
+# Store best results
+best_MSE = 1000
+best_weights = []
 
 for i in range(max_epochs):
     # Intialize list with idx for data set
@@ -66,24 +68,28 @@ for i in range(max_epochs):
     MSE = np.sum(MSE)/(len(d))
     print(MSE, "mse")
     MSE_list.append(MSE)
-    print(o, "o")
-    print(d,"d")
+
+    if MSE < best_MSE:
+        best_MSE = MSE
+        best_weights = per_mult_layer.weights
+    #print(o, "o")
+    #print(d,"d")
     #input()
 
     # break condition 
-    if MSE < 0.001:
+    if MSE < 0.005:
         break
 
-print(f"termine en {i} epocas")
+print(f"termino en {i} epocas")
 
-# Graficar
+# Graficar MSE
 x = np.arange(len(MSE_list))
 plt.plot(x, MSE_list)
 
 
 #input()
-# TEST 
-print("XOR OPERATION")
+# TEST last weights
+print("XOR OPERATION ---- last data")
 print("----------------------------")
 print("Entradas   Exp.Res   Obt.Res")
 print("----------------------------")
@@ -92,5 +98,16 @@ for (x_n,d_n) in zip(data_set, d):
     o_n = per_mult_layer.compute_output()[-1]
     print(x_n, "\t  ",d_n, "   ",o_n)
 
+# TEST best weights
+if MSE != best_MSE:
+    per_mult_layer.weights = best_weights
+    print("\nXOR OPERATION ---- best MSE")
+    print("----------------------------")
+    print("Entradas   Exp.Res   Obt.Res")
+    print("----------------------------")
+    for (x_n,d_n) in zip(data_set, d):
+        per_mult_layer.set_inputs(x_n)
+        o_n = per_mult_layer.compute_output()[-1]
+        print(x_n, "\t  ",d_n, "   ",o_n)
 
 plt.show()

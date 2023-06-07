@@ -3,9 +3,8 @@
 # Author: Mariana Zamudio Ayala
 # Date: 15/05/2023
 # Description:
-# Program that trains a sigle layer
-# perceptron during 50 epochs to classify points 
-# in a cartesian plane. 
+# Program that trains a multi layer
+# perceptron to classify points in a cartesian plane.
 # Each class is a set of points inside a moon area
 # defined by its radius, width and distance.
 # The MCE is computed and ploted for each epoch.
@@ -18,20 +17,26 @@ from interconnected_neuronal_network import InterconNeuralNet
 import matplotlib.pyplot as plt
 import numpy as np
 
-# --- Define customizable data 
+# --- Define moon parameters 
 # Center radious of the moon 
 r = 10  
 # Vertical distance between center of moon 
 # in region A and moon in region B
 d = 0
 # Width of the moons 
-w = 10
+w = 6
 # num coordinates for trainning
 n_train_coord = 1000
 # num coordinates for testing 
 n_test_coord = 2000
+
+# ---- Define tunning parameters
 # epochs
-num_epochs = 50  
+num_epochs = 50 
+# a and alpha
+a = 2
+b = 1
+alpha = 0.01
 # eta range in which it will lineatly vary during training
 eta_range = (1e-1, 1e-5) 
 # -----
@@ -45,10 +50,12 @@ coords_train = generate_coords_in_moon(r, w, d, int(n_train_coord/2))
 # Obtain coordinates in region B and concatete them with the ones in region A
 coords_train = np.hstack((coords_train, generate_coords_in_moon(r, w, d, int(n_train_coord/2), "B")))
 
-# Initialize the single layer perceptron 
-num_layers = 1
-num_neurons = [1]
-perceptron = InterconNeuralNet([0,0], num_layers, num_neurons, 3)
+# Initialize the multi layer perceptron
+inputs = [0,0]
+num_layers = 2
+num_neurons = [20,1]
+per_mult_layer = InterconNeuralNet(inputs, num_layers, num_neurons, 4, a, b)
+print(per_mult_layer.weights)
 
 # ---- Train perceptron 
 pesos, eta_values, MSE_values = perceptron.train_perceptron(eta_range, num_epochs, \

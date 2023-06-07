@@ -359,10 +359,9 @@ class InterconNeuralNet:
                 
                 # ULTIMA CAPA
                 if layer == self.num_layers:
-                    print(idx_neuron)
+                    #print(idx_neuron)
                     # Compute local gradient
                     local_gradients[layer-1, neuron] = self.a*(d-y[idx_neuron])*y[idx_neuron]*(1-y[idx_neuron])
-                    
 
                 # CAPA OCULTA
                 else:
@@ -377,6 +376,7 @@ class InterconNeuralNet:
                 
                 # Compute weight change
                 idx = sum(self.neurons_in_layers[:layer-1]) + neuron
+                
                 #                                                      [1   y_prev_layer]
                 cambio_actual = eta*local_gradients[layer-1, neuron] * np.insert(y_prev_layer, 0, 1) + \
                                     alpha * self.cambio_anterior[idx]
@@ -385,16 +385,14 @@ class InterconNeuralNet:
                 #input()
                 #print(layer-1, neuron)
                 #print(self.weights)
-                # Actualiza pesos
                 
                 # Change weights
-                self.weights[layer-1][neuron] = self.weights[layer-1][neuron] + cambio_actual 
-                                                    
+                self.weights[layer-1][neuron] = self.weights[layer-1][neuron] + cambio_actual
                 #print(self.weights, "se actualizó pesos")
-                #input()
-
+                
                 # Save actual change
                 self.cambio_anterior[idx] = cambio_actual
+
                 
 
 

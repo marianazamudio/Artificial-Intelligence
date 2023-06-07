@@ -2,7 +2,7 @@
 # File: main_XOR.py
 # Author: Mariana Zamudio Ayala
 # Date: 01/06/2023
-# Description: Program that trains a sigle layer
+# Description: Program that trains a multi layer
 # perceptron to do XOR operation
 # --------------------------------------------------- #
 from interconnected_neuronal_network import InterconNeuralNet
@@ -11,10 +11,10 @@ import random
 import matplotlib.pyplot as plt
 
 # Tunning parameters
-max_epochs = 700
-alpha = 0.01
-a = 2
-eta = 0.5
+max_epochs = 30000
+alpha = 0.05
+a = 3.3
+eta = 0.25
 
 # Initialize the multi layer perceptron
 inputs = [0,0]
@@ -24,6 +24,10 @@ per_mult_layer = InterconNeuralNet(inputs, num_layers, num_neurons, 2, a)
 print(per_mult_layer.weights)
 
 # Weight initialization for convergence
+#capa_1 = np.array([[0.0, 0.0, 0.0],[0.0, 0.0,0.0]])
+#capa_2 = np.array([[0.0, 0.0, 0.0]])
+#per_mult_layer.weights = [capa_1, capa_2]
+
 #capa_1 = np.array([[-1.5, 1, 1],[-0.5, 1, 1]])
 #capa_2 = np.array([[-0.5, -2, 1]])
 #per_mult_layer.weights = [capa_1, capa_2]
@@ -34,7 +38,6 @@ d =[1,0,0,1]
 
 # List to plot MSE
 MSE_list = []
-
 # Iterate between epochs of training
 for i in range(max_epochs):
     # Intialize list with idx for data set
@@ -59,15 +62,14 @@ for i in range(max_epochs):
         
         # Backward computation
         per_mult_layer.back_computation(eta=eta,alpha=alpha,d=d_n)
-
+        
         MSE += (d_n - o_n)**2
     
     # Compute MSE
     MSE = MSE/(len(d))
-    print(MSE, "mse")
+    #print(MSE, "mse")
     MSE_list.append(MSE)
     
-    # Debug prints
     #print(o, "o")
     #print(d,"d")
     #input()
@@ -75,7 +77,7 @@ for i in range(max_epochs):
     # Break condition 
     if MSE < 0.005:
         break
-
+print(f"mse: {MSE}")
 print(f"termino en {i} epocas")
 
 # TEST last weights
@@ -87,6 +89,8 @@ for (x_n,d_n) in zip(data_set, d):
     per_mult_layer.set_inputs(x_n)
     o_n = per_mult_layer.compute_output()[-1]
     print(x_n, "\t  ",d_n, "   ",o_n)
+# Print weights
+print(per_mult_layer.weights)
 
 # Graficar MSE
 x = np.arange(len(MSE_list))

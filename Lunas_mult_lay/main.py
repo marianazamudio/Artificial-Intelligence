@@ -53,13 +53,13 @@ coords_train = np.hstack((coords_train, generate_coords_in_moon(r, w, d, int(n_t
 # Initialize the multi layer perceptron
 inputs = [0,0]
 num_layers = 2
-num_neurons = [20,1]
+num_neurons = [2,1]
 per_mult_layer = InterconNeuralNet(inputs, num_layers, num_neurons, 4, a, b)
-print(per_mult_layer.weights)
+
 
 # ---- Train perceptron 
-pesos, eta_values, MSE_values = perceptron.train_perceptron(eta_range, num_epochs, \
-                                                            tr_inputs=coords_train, \
+pesos, eta_values, MSE_values = per_mult_layer.train_perceptron_mult(eta_range, alpha, num_epochs, \
+                                                            data_set=coords_train, \
                                                             class_indx=int(n_train_coord/2))
 
 # ---Plot training coordinates

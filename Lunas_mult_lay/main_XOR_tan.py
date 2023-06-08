@@ -10,17 +10,24 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 
-# Tunning parameters
+# Tunning parameters random
 max_epochs = 1000
 alpha = 0.03
 a = 1.2
-b=1
+b = 1
 eta = 0.2
+
+# Tunning parameters unos
+#max_epochs = 10000
+#alpha = 0.05
+#a = 0.25
+#b=1
+#eta = 0.35
 
 # Initialize the multi layer perceptron
 inputs = [0,0]
 num_layers = 2
-num_neurons = [2,1]
+num_neurons = [3,1]
 per_mult_layer = InterconNeuralNet(inputs, num_layers, num_neurons, 4, a, b, wt="r")
 print(per_mult_layer.weights)
 
@@ -45,7 +52,7 @@ for i in range(max_epochs):
     idx_list = list((range(4)))
     
     # Permutate list
-    #random.shuffle(idx_list)
+    random.shuffle(idx_list)
 
     # Initialize MSE result variable
     MSE = 0
@@ -54,7 +61,7 @@ for i in range(max_epochs):
     for idx in idx_list:
         # Configurar entradas
         per_mult_layer.set_inputs(data_set[idx])
-        print(data_set[idx], "inputs ----")
+        #print(data_set[idx], "inputs ----")
         # Configurar valores deseados
         d_n = d[idx] 
         
@@ -68,7 +75,7 @@ for i in range(max_epochs):
     
     # Compute MSE
     MSE = MSE/(len(d))
-    print(MSE, "mse")
+    #print(MSE, "mse")
     MSE_list.append(MSE)
     
     #print(o, "o")
@@ -76,7 +83,7 @@ for i in range(max_epochs):
     #input()
 
     # Break condition 
-    if MSE < 0.005:
+    if MSE < 0.1:
         break
 print(f"mse: {MSE}")
 print(f"termino en {i} epocas")

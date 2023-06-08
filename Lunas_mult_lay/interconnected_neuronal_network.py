@@ -427,14 +427,61 @@ class InterconNeuralNet:
                 
                 # Change weights
                 self.weights[layer-1][neuron] = self.weights[layer-1][neuron] + cambio_actual
-                print(self.weights, "se actualizó pesos")
+                #print(self.weights, "se actualizó pesos")
                 
                 # Save actual change
                 self.cambio_anterior[idx] = cambio_actual
 
                 #input()
 
+    def train_perceptron_mult(self,eta_range, alpha, num_epochs, data_set, class_indx):
+        # Initialize eta
+        eta = eta_range[0]
+        # Compute eta step
+        eta_step = (eta_range[0]-eta_range[1])/num_epochs
+        # List to plot MSE
+        MSE_list = []
+        # Iterate between epochs of training
+        for i in range(num_epochs):
+            # Intialize list with idx for data set
+            idx_list = list((range(len(data_set))))
+            
+            # Permutate list
+            random.shuffle(idx_list)
+
+            # Initialize MSE result variable
+            MSE = 0
+            
+            # Iterate in data set
+            for idx in idx_list:
+                # Configurar entradas
+                self.set_inputs(data_set[idx])
                 
+                # Configurar valores deseados
+                if idx < class_indx:
+                    d_n = 1
+                else:
+                    d_n = -1
+                
+                # Forward computation
+                o_n = self.compute_output()[-1]
+                
+                # Backward computation
+                self.back_computation(eta=eta,alpha=alpha,d=d_n)
+                
+                MSE += (d_n - o_n)**2
+    
+            # Compute MSE
+            MSE = MSE/(len(d))
+            MSE_list.append(MSE)
+
+            # Update eta
+            eta += eta_step
+            
+            # Break condition 
+            if MSE < 0.25:
+                break
+                pass
 
 
 

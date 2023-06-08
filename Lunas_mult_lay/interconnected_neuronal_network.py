@@ -151,13 +151,10 @@ class InterconNeuralNet:
         # Store weights as a network attribute
         self.weights = weights.copy()
 
-        # TODO: Assign cambio anterior accordingly with num neurons and inputs of each neuron
-        #a1 = np.array([0,0, 0])
-        #self.cambio_anterior = [a1,a1,a1]
 
         # Iterar entre numero de neuronas en cada capa
         num_neurons_in_layers = [len(inputs)] + neurons_in_layers[:]
-        print(num_neurons_in_layers)
+        #print(num_neurons_in_layers)
         self.cambio_anterior = []
         for i in range(0,len(num_neurons_in_layers)-1):
             # Array 1 x num_neur_curr_layer
@@ -166,7 +163,7 @@ class InterconNeuralNet:
             array_temp = [array_temp] * num_neurons_in_layers[i+1]
             self.cambio_anterior += array_temp
 
-        print(self.cambio_anterior)
+        #print(self.cambio_anterior)
 
     """
         Modifies inputs of the neural net, adds input X0 = +1 for the bias
@@ -339,7 +336,7 @@ class InterconNeuralNet:
                 # Incrementar el indicador de inicio de entradas de la capa
                 start += self.neurons_in_layers[layer-1]
         
-        
+        #print(self.outputs, "y")
         return self.outputs
     
     def back_computation(self,eta,alpha, d):
@@ -379,20 +376,42 @@ class InterconNeuralNet:
                 
                 # ULTIMA CAPA
                 if layer == self.num_layers:
-                    #print(idx_neuron)
-                    # Compute local gradient
-                    local_gradients[layer-1, neuron] = self.a*(d-y[idx_neuron])*y[idx_neuron]*(1-y[idx_neuron])
-
+                    # SIGMOID
+                    if self.act_funct_num == 2:
+                        #print(idx_neuron)
+                        # Compute local gradient
+                        local_gradients[layer-1, neuron] = self.a*(d-y[idx_neuron])*y[idx_neuron]*(1-y[idx_neuron])
+                    # TANH
+                    if self.act_funct_num == 4:
+                        #print(self.a, self.b, "a y b")
+                        local_gradients[layer-1, neuron] = (self.a/self.b) 
+                        #print(local_gradients, "lg ult.capa")
+                        local_gradients[layer-1, neuron] *= (d-y[idx_neuron])
+                        #print(d-y[idx_neuron], "d - y")
+                        #print(local_gradients, "lg ult.capa")
+                        local_gradients[layer-1, neuron] *= (self.b-y[idx_neuron])
+                        #print(self.b-y[idx_neuron], "b - y")
+                        #print(local_gradients, "lg ult.capa")
+                        local_gradients[layer-1, neuron] *= (self.b+y[idx_neuron])
+                        #print(local_gradients, "lg ult.capa")
+                    
                 # CAPA OCULTA
-                else:
+                if layer != self.num_layers:
                     local_gradients[layer-1, neuron] = 0
                     for k in range(neurons_in_layers[layer+1]):
                         #                                   local gradient of neuron k of next layer * weight k,neuron
                         local_gradients[layer-1, neuron] += local_gradients[layer,k]*self.weights[layer][k][neuron+1]    # neuron+1 because weights include the bias in the first position
                         #print(self.weights[layer][k][neuron+1], "elemento")
-                    local_gradients[layer-1, neuron] *= self.a*y[idx_neuron] * (1-y[idx_neuron])
+                   
+                    # SIGMOID
+                    if self.act_funct_num == 2:
+                        local_gradients[layer-1, neuron] *= self.a*y[idx_neuron] * (1-y[idx_neuron])
+                    # TANH
+                    if self.act_funct_num == 4:
+                        local_gradients[layer-1, neuron] *= (self.a/self.b)*(self.b-y[idx_neuron])*(self.b+y[idx_neuron])
 
                     #print(local_gradients, f"se actualizo en capa {layer}, neurona {neuron}")
+                    
                 
                 # Compute weight change
                 idx = sum(self.neurons_in_layers[:layer-1]) + neuron
@@ -402,16 +421,18 @@ class InterconNeuralNet:
                                     alpha * self.cambio_anterior[idx]
                 
                 #print(cambio_actual, "cambio_Actual")
-                #input()
+
                 #print(layer-1, neuron)
                 #print(self.weights)
                 
                 # Change weights
                 self.weights[layer-1][neuron] = self.weights[layer-1][neuron] + cambio_actual
-                #print(self.weights, "se actualizó pesos")
+                print(self.weights, "se actualizó pesos")
                 
                 # Save actual change
                 self.cambio_anterior[idx] = cambio_actual
+
+                #input()
 
                 
 

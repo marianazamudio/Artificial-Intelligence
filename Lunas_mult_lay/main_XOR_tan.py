@@ -12,20 +12,21 @@ import matplotlib.pyplot as plt
 
 # Tunning parameters
 max_epochs = 1000
-alpha = 0.05
-a = 3.3
-eta = 0.25
+alpha = 0.03
+a = 1.2
+b=1
+eta = 0.2
 
 # Initialize the multi layer perceptron
 inputs = [0,0]
 num_layers = 2
 num_neurons = [2,1]
-per_mult_layer = InterconNeuralNet(inputs, num_layers, num_neurons, 2, a, wt="r")
+per_mult_layer = InterconNeuralNet(inputs, num_layers, num_neurons, 4, a, b, wt="r")
 print(per_mult_layer.weights)
 
 # Weight initialization for convergence
 #capa_1 = np.array([[0.0, 0.0, 0.0],[0.0, 0.0,0.0]])
-#capa_2 = np.array([[0.0, 0.0, 0.0]])
+#capa_2 = np.array([[0.0, 0.0, 1.0]])
 #per_mult_layer.weights = [capa_1, capa_2]
 
 #capa_1 = np.array([[-1.5, 1, 1],[-0.5, 1, 1]])
@@ -34,7 +35,7 @@ print(per_mult_layer.weights)
 
 # Initialize data set
 data_set = [[0,0], [0,1], [1,0], [1,1]]
-d =[1,0,0,1]
+d =[-1,1,1,-1]
 
 # List to plot MSE
 MSE_list = []
@@ -44,7 +45,7 @@ for i in range(max_epochs):
     idx_list = list((range(4)))
     
     # Permutate list
-    random.shuffle(idx_list)
+    #random.shuffle(idx_list)
 
     # Initialize MSE result variable
     MSE = 0
@@ -53,7 +54,7 @@ for i in range(max_epochs):
     for idx in idx_list:
         # Configurar entradas
         per_mult_layer.set_inputs(data_set[idx])
-        
+        print(data_set[idx], "inputs ----")
         # Configurar valores deseados
         d_n = d[idx] 
         
@@ -67,7 +68,7 @@ for i in range(max_epochs):
     
     # Compute MSE
     MSE = MSE/(len(d))
-    #print(MSE, "mse")
+    print(MSE, "mse")
     MSE_list.append(MSE)
     
     #print(o, "o")
@@ -95,5 +96,6 @@ print(per_mult_layer.weights)
 # Graficar MSE
 x = np.arange(len(MSE_list))
 plt.plot(x, MSE_list)
+#print(MSE_list)
 # Show plot
 plt.show()

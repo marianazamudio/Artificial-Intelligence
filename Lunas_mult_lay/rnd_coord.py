@@ -57,7 +57,7 @@ def generate_coords_in_moon(r, w, d, num_coord, region='A'):
             temp = np.array([[x], [y]])
             coords = np.hstack((coords,temp))
 
-
+    #print(coords, "coords")
     return (coords)
 
 if __name__ == "__main__":

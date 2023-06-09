@@ -8,6 +8,7 @@
 import numpy as np
 import math
 import random
+import copy
 
 class InterconNeuralNet:
     """
@@ -142,7 +143,7 @@ class InterconNeuralNet:
                 elif wt == 'o':
                     weights_layer = np.ones((rows,columns+1))
                 elif wt == 'r':
-                    weights_layer = np.random.uniform(low =-1, high=1, size=(rows, columns+1))
+                    weights_layer = np.random.uniform(low =-0.5, high=0.5, size=(rows, columns+1))
 
                 # Append weights of the layer to the array with all the weights
                 weights.append(weights_layer)
@@ -178,6 +179,15 @@ class InterconNeuralNet:
     """
     def set_inputs(self, inputs):
         self.inputs = [1] + inputs
+
+    def set_weights(self, new_weights):
+        print(self.weights)
+        print("***************")
+        self.weights.clear()
+        print(self.weights)
+        print("----------------")
+        self.weights = new_weights
+        print(self.weights)
         
     
     """ 
@@ -312,8 +322,8 @@ class InterconNeuralNet:
                 weight_vect =  weight_mat[i,:]
 
                 # wT(i) x(i)
-                #print(inputs_of_layer)
-                #print(weight_vect)
+                #print(inputs_of_layer, "inputs")
+                #print(weight_vect, "weight_vect")
                 v_k = np.dot(inputs_of_layer, weight_vect)
                 #print(inputs_of_layer)
                 #print(weight_vect)
@@ -441,10 +451,14 @@ class InterconNeuralNet:
         eta_step = (eta_range[0]-eta_range[1])/num_epochs
         # List to plot MSE
         MSE_list = []
+        best_MSE = 1000
+        best_weights = []
+        epoch_wo_better_weights = 0
         # Iterate between epochs of training
         for i in range(num_epochs):
+            print("epoch", i)
             # Intialize list with idx for data set
-            idx_list = list((range(len(data_set))))
+            idx_list = list((range(len(data_set[0]))))
             
             # Permutate list
             random.shuffle(idx_list)
@@ -454,8 +468,9 @@ class InterconNeuralNet:
             
             # Iterate in data set
             for idx in idx_list:
+                input_data = [data_set[0,idx], data_set[1,idx]]
                 # Configurar entradas
-                self.set_inputs(data_set[idx])
+                self.set_inputs(input_data)
                 
                 # Configurar valores deseados
                 if idx < class_indx:
@@ -464,6 +479,7 @@ class InterconNeuralNet:
                     d_n = -1
                 
                 # Forward computation
+                #print(self.weights)
                 o_n = self.compute_output()[-1]
                 
                 # Backward computation
@@ -472,17 +488,21 @@ class InterconNeuralNet:
                 MSE += (d_n - o_n)**2
     
             # Compute MSE
-            MSE = MSE/(len(d))
+            MSE = MSE/(len(idx_list))
             MSE_list.append(MSE)
-
             # Update eta
             eta += eta_step
             
-            # Break condition 
-            if MSE < 0.25:
-                break
-                pass
+            if MSE < best_MSE:
+                best_MSE = MSE
+                print(best_weights)
+                best_weights = []
+                print(best_weights)
+                best_weights = copy.deepcopy(self.weights)
+                print(best_weights)
 
+        self.weights = copy.deepcopy(best_weights)
+        return MSE_list
 
 
 
@@ -545,6 +565,9 @@ class InterconNeuralNet:
             Returns: 
                 output: float in range [-1,1]
         """
-        return b*(math.exp(a*v) - math.exp(-a*v))/(math.exp(a*v) + math.exp(-a*v))
+        try:
+            return b*(math.exp(a*v) - math.exp(-a*v))/(math.exp(a*v) + math.exp(-a*v))
+        except:
+            return b * np.tanh(a*v)
 
 

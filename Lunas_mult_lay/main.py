@@ -22,7 +22,7 @@ import numpy as np
 r = 10  
 # Vertical distance between center of moon 
 # in region A and moon in region B
-d = -1
+d = -3
 # Width of the moons 
 w = 6
 # num coordinates for trainning
@@ -32,7 +32,7 @@ n_test_coord = 2000
 
 # ---- Define tunning parameters
 # epochs
-num_epochs = 100
+num_epochs = 50
 # a and alpha
 a = 1
 b = 1
@@ -65,7 +65,31 @@ MSE_values = per_mult_layer.train_perceptron_mult(eta_range, alpha, num_epochs, 
 #per_mult_layer.set_weights(best_w)
 print("--------------")
 print(per_mult_layer.weights)
+"""
+# ------------------- [division] ------------------------ #
+# Generar una malla de puntos en el espacio de entrada
+x1 = np.linspace(-r-w, 2*r+w, 1000)
+x2 = np.linspace(-r-d-w, r+w, 1000)
+X1, X2 = np.meshgrid(x1, x2)
+
+# Evaluar la red neuronal en cada punto de la malla
+Z = np.zeros_like(X1)
+for i in range(X1.shape[0]):
+    for j in range(X1.shape[1]):
+        # Calcular la salida de la red neuronal para el punto (X1[i, j], X2[i, j])
+        # utilizando los pesos y sesgos correspondientes
+        # y almacenar el resultado en Z[i, j]
+        per_mult_layer.set_inputs([X1[i,j], X2[i,j]])
+        Z[i,j] = per_mult_layer.compute_output()[-1]
+
+# Trazar la curva de decisión
+axs[0,0].contourf(X1, X2, Z, levels=1, colors=('#F9B7FF', '#B7FFF9'), alpha=0.5)
+axs[1,1].contourf(X1, X2, Z, levels=1, colors=('#F9B7FF', '#B7FFF9'), alpha=0.5)
+# -------------------------------------------------------------------
+"""
+
 # ---Plot classification of dataset after training
+error_training = 0
 for idx in range(len(coords_train[0])):
     # Set inputs
     per_mult_layer.set_inputs([coords_train[0][idx],coords_train[1][idx]])
@@ -74,12 +98,19 @@ for idx in range(len(coords_train[0])):
 
     if y < 0:
         color_p = "blue"
+        if idx < n_train_coord//2:
+            error_training += 1
     else: 
         color_p = "orange"
+        if idx >= n_train_coord//2:
+            error_training += 1
     axs[0,0].scatter(coords_train[0][idx],coords_train[1][idx], color=color_p)
 
 
-
+print("errors in training:", error_training)
+error_training = (error_training/n_train_coord) * 100
+print(f"error training: {error_training}%")
+print(f"reliability training: {100-error_training}%")
 
 # --- Plot eta
 epochs = np.arange(1,len(MSE_values)+1,1)
@@ -99,6 +130,7 @@ coords_test = generate_coords_in_moon(r, w, d, limit)
 # Region B
 coords_test = np.hstack((coords_test, generate_coords_in_moon(r, w, d, limit, "B")))
 
+error_test = 0
 for idx in range(n_test_coord):
     # Set inputs
     per_mult_layer.set_inputs([coords_test[0][idx],coords_test[1][idx]])
@@ -107,15 +139,22 @@ for idx in range(n_test_coord):
 
     if y < 0:
         color_p = "blue"
+        if idx < n_test_coord//2:
+            error_test += 1
+            
     else: 
         color_p = "orange"
+        if idx >= n_test_coord//2:
+            error_test += 1
+            
     axs[1,1].scatter(coords_test[0][idx],coords_test[1][idx], color=color_p)
-
-# Print error rate
-#print(f"Found {errors} errors in test")
-#error_rate = (errors/n_test_coord) * 100
-#print(f"The error rate is: {error_rate}%")
+print("-------------------------------------")
+print("errors in test:", error_test)
+error_test = (error_test/n_test_coord) * 100
+print(f"error test: {error_test}%")
+print(f"reliability test: {100-error_test}%")
 
 # --- Show graphs
 plt.tight_layout()
 plt.show()
+

@@ -129,7 +129,7 @@ class InterconNeuralNet:
                 elif wt == 'o':
                     weights_layer = np.ones((rows, columns))
                 elif wt == 'r':
-                    weights_layer = np.random.uniform(low=-1, high=1, size=(rows, columns))
+                    weights_layer = np.random.uniform(low=-0.1, high=0.1, size=(rows, columns))
                 
                 # Append weights of the layer to the array with all the weights
                 weights.append(weights_layer)
@@ -393,17 +393,9 @@ class InterconNeuralNet:
                         local_gradients[layer-1, neuron] = self.a*(d-y[idx_neuron])*y[idx_neuron]*(1-y[idx_neuron])
                     # TANH
                     if self.act_funct_num == 4:
-                        #print(self.a, self.b, "a y b")
                         local_gradients[layer-1, neuron] = (self.a/self.b) 
-                        #print(local_gradients, "lg ult.capa")
                         local_gradients[layer-1, neuron] *= (d-y[idx_neuron])
-                        #print(d-y[idx_neuron], "d - y")
-                        #print(local_gradients, "lg ult.capa")
-                        local_gradients[layer-1, neuron] *= (self.b-y[idx_neuron])
-                        #print(self.b-y[idx_neuron], "b - y")
-                        #print(local_gradients, "lg ult.capa")
-                        local_gradients[layer-1, neuron] *= (self.b+y[idx_neuron])
-                        #print(local_gradients, "lg ult.capa")
+                        local_gradients[layer-1, neuron] *= (self.b-y[idx_neuron]**2)
                     
                 # CAPA OCULTA
                 if layer != self.num_layers:
@@ -418,7 +410,7 @@ class InterconNeuralNet:
                         local_gradients[layer-1, neuron] *= self.a*y[idx_neuron] * (1-y[idx_neuron])
                     # TANH
                     if self.act_funct_num == 4:
-                        local_gradients[layer-1, neuron] *= (self.a/self.b)*(self.b-y[idx_neuron])*(self.b+y[idx_neuron])
+                        local_gradients[layer-1, neuron] *= (self.a/self.b)*(self.b-y[idx_neuron]**2)
 
                     #print(local_gradients, f"se actualizo en capa {layer}, neurona {neuron}")
                     
@@ -430,19 +422,12 @@ class InterconNeuralNet:
                 cambio_actual = eta*local_gradients[layer-1, neuron] * np.insert(y_prev_layer, 0, 1) + \
                                     alpha * self.cambio_anterior[idx]
                 
-                #print(cambio_actual, "cambio_Actual")
-
-                #print(layer-1, neuron)
-                #print(self.weights)
-                
                 # Change weights
                 self.weights[layer-1][neuron] = self.weights[layer-1][neuron] + cambio_actual
-                #print(self.weights, "se actualizó pesos")
-                
+
                 # Save actual change
                 self.cambio_anterior[idx] = cambio_actual
 
-                #input()
 
     def train_perceptron_mult(self,eta_range, alpha, num_epochs, data_set, class_indx):
         # Initialize eta
@@ -500,6 +485,13 @@ class InterconNeuralNet:
                 print(best_weights)
                 best_weights = copy.deepcopy(self.weights)
                 print(best_weights)
+                epoch_wo_better_weights = 0
+
+            else:
+                epoch_wo_better_weights +=1
+
+            if epoch_wo_better_weights >=25:
+                break
 
         self.weights = copy.deepcopy(best_weights)
         return MSE_list

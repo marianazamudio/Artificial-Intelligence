@@ -371,6 +371,8 @@ class InterconNeuralNet:
         # Iterate between layers, from the last one to the first one
         for layer in range(self.num_layers, 0, -1):
             # Iterate between neurons in the current layer
+            #print(neurons_in_layers[layer], "neurons_in_layers[layer]")
+            #print(d, "d")
             for neuron in range(neurons_in_layers[layer]):
                 # List of outputs of neurons, added the input values
                 y = self.inputs[1:] + self.outputs.tolist()
@@ -386,15 +388,17 @@ class InterconNeuralNet:
                 
                 # ULTIMA CAPA
                 if layer == self.num_layers:
+                    d_idx = neuron   #TODO
+                    #print(neuron, "neuron")
                     # SIGMOID
                     if self.act_funct_num == 2:
                         #print(idx_neuron)
                         # Compute local gradient
-                        local_gradients[layer-1, neuron] = self.a*(d-y[idx_neuron])*y[idx_neuron]*(1-y[idx_neuron])
+                        local_gradients[layer-1, neuron] = self.a*(d[neuron]-y[idx_neuron])*y[idx_neuron]*(1-y[idx_neuron])
                     # TANH
                     if self.act_funct_num == 4:
                         local_gradients[layer-1, neuron] = (self.a/self.b) 
-                        local_gradients[layer-1, neuron] *= (d-y[idx_neuron])
+                        local_gradients[layer-1, neuron] *= (d[neuron]-y[idx_neuron])
                         local_gradients[layer-1, neuron] *= (self.b-y[idx_neuron]**2)
                     
                 # CAPA OCULTA
@@ -429,21 +433,26 @@ class InterconNeuralNet:
                 self.cambio_anterior[idx] = cambio_actual
 
 
-    def train_perceptron_mult(self,eta_range, alpha, num_epochs, data_set, class_indx):
-        # Initialize eta
-        eta = eta_range[0]
-        # Compute eta step
-        eta_step = (eta_range[0]-eta_range[1])/num_epochs
+    def train_perceptron_mult(self,eta, alpha, num_epochs, data_set, class_indx):
+        eta_var = False
+        if type(eta) == tuple:
+            # Compute eta step
+            eta_step = (eta[0]-eta[1])/num_epochs
+            # Initialize eta
+            eta = eta[0]
+            eta_var = True
+
         # List to plot MSE
         MSE_list = []
         best_MSE = 1000
         best_weights = []
         epoch_wo_better_weights = 0
+
         # Iterate between epochs of training
         for i in range(num_epochs):
             print("epoch", i)
             # Intialize list with idx for data set
-            idx_list = list((range(len(data_set[0]))))
+            idx_list = list((range(len(data_set))))
             
             # Permutate list
             random.shuffle(idx_list)
@@ -452,39 +461,51 @@ class InterconNeuralNet:
             MSE = 0
             
             # Iterate in data set
-            for idx in idx_list:
-                input_data = [data_set[0,idx], data_set[1,idx]]
+            for idx, i in zip(idx_list, range(len(idx_list))):
+                print(idx, i)
+                input_data = data_set[idx]
                 # Configurar entradas
                 self.set_inputs(input_data)
                 
                 # Configurar valores deseados
-                if idx < class_indx:
-                    d_n = 1
-                else:
-                    d_n = -1
-                
+                d_n = InterconNeuralNet.set_d_n(idx, class_indx, self.act_funct_num)
+                #print(d_n, "d_n")
+                #print(idx, "idx")
+                #print(class_indx)
+                #input()
+
+                # Obtener neuronas en ultimo 
+                num_outputs = self.neurons_in_layers[-1]
+
                 # Forward computation
-                #print(self.weights)
-                o_n = self.compute_output()[-1]
+                o_n = self.compute_output()[-num_outputs:]
+                #print(o_n, "o_n")
+                #print(d_n)
+                #print((d_n - o_n))
+                #print((d_n - o_n)**2)
+                #input()
                 
                 # Backward computation
                 self.back_computation(eta=eta,alpha=alpha,d=d_n)
                 
                 MSE += (d_n - o_n)**2
+                #print(MSE)
     
             # Compute MSE
+            MSE = sum(MSE)
             MSE = MSE/(len(idx_list))
             MSE_list.append(MSE)
+            print("MSE", MSE)
+            print("MSE_list", MSE_list)
+            #input()
             # Update eta
-            eta += eta_step
-            
+            if eta_var:
+                eta += eta_step
+            """
             if MSE < best_MSE:
                 best_MSE = MSE
-                print(best_weights)
                 best_weights = []
-                print(best_weights)
                 best_weights = copy.deepcopy(self.weights)
-                print(best_weights)
                 epoch_wo_better_weights = 0
 
             else:
@@ -492,11 +513,39 @@ class InterconNeuralNet:
 
             if epoch_wo_better_weights >=25:
                 break
-
-        self.weights = copy.deepcopy(best_weights)
+            """
+        #self.weights = copy.deepcopy(best_weights)
         return MSE_list
 
 
+
+
+
+    def test(self, images, idx_class_change):
+        errors = 0
+        valor_deseado = 0
+        limit = idx_class_change[valor_deseado]
+        for i in range(len(images)):
+            if i == limit:
+                valor_deseado += 1
+                limit = idx_class_change[valor_deseado]
+
+            # Cargar entradas
+            self.set_inputs = images[i]
+
+            # Calcular salidas
+            output = self.compute_output()[-10:]
+            output = output.tolist()
+            output = output.index(max(output))
+
+            # Contar errores
+            if output != valor_deseado:
+                errors += 1
+
+        # Calcular porcentaje de confianza
+        perc_error = errors/len(images)
+
+        return perc_error
 
             
 
@@ -561,5 +610,30 @@ class InterconNeuralNet:
             return b*(math.exp(a*v) - math.exp(-a*v))/(math.exp(a*v) + math.exp(-a*v))
         except:
             return b * np.tanh(a*v)
+        
+    @staticmethod
+    def set_d_n(idx, class_idx, func_act):
+
+        if func_act in [1, 2]:
+            default = 0
+        if func_act in [3, 4]:
+            default = -1
+
+        # Initialize d_n
+        d_n = [default for i in range(len(class_idx))]
+
+        class_idx = [0] + class_idx
+        for i in range(len(class_idx)-1):
+            if class_idx[i] <= idx < class_idx[i+1]:
+                d_n[i] = 1
+                #print(idx, "idx")
+                #print(d_n)
+                #print(class_idx)
+                return d_n
+            
+        print("error fatal")
+        print(idx, "idx")
+        print(class_idx)
+        input()
 
 

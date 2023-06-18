@@ -52,26 +52,35 @@ def get_MNIST_dataset(path):
 #   num_dig: number of images to obtain
 #   mode: 1 - random
 #         2 - first occurrences for each digit.
+#         3 - include all data in data set
 # Outputs:
 #   digits_images: list of lists with image data in unidimentional format. 
 #   idx_digit_change: list of indexes that idicate where a set of images
 #                     of a different digit start.
 # ------------------------------------------------------------------------
-def obtain_images(labels, images, num_dig, mode):
-    # Find out how many images per digit should be obtained
-    images_per_digit = num_dig//10
-    module = num_dig%10
-    images_per_digit = [images_per_digit for x in range(10)]
-    indices_aleatorios = random.sample(range(10), module)
-    for i in indices_aleatorios:
-        images_per_digit[i] += 1
+def obtain_images(labels, images, mode, num_dig=None):
+    if mode != 3:
+        # Find out how many images per digit should be obtained
+        images_per_digit = num_dig//10
+        module = num_dig%10
+        # List that indicates images per digit to collect. idx = digit.
+        images_per_digit = [images_per_digit for x in range(10)]
+        # Find random digits to acquire the module images. 
+        indices_aleatorios = random.sample(range(10), module)
+        for i in indices_aleatorios:
+            images_per_digit[i] += 1
+        print(images_per_digit, "images per digit")
+        # Generate list where it is stored the index where new digit information start 
+        idx_digit_change = []
+        for i in range(1,len(images_per_digit)):
+            idx_digit_change.append(sum(images_per_digit[:i]))
     
-    # Generar idx_digit_change
-    idx_digit_change = []
-    for i in range(1,len(images_per_digit)):
-        idx_digit_change.append(sum(images_per_digit[:i]))
-    
-    
+    else: 
+        # Generate empty lists
+        images_per_digit = [0 for i in range(10)]
+        idx_digit_change = []
+        
+
     digits_images = []
     # Iterate between digits and number of images to obtained per digit. 
     for i, n in zip(range(10), images_per_digit):
@@ -86,29 +95,41 @@ def obtain_images(labels, images, num_dig, mode):
             # Obtener indices random no repetidos que correspondan a una imagen del dígito
             idx = random.sample(range(max_imag), n)
         
+        if mode == 3:
+            idx = np.where(labels == i)[0]
+            num_img = len(idx)
+            images_per_digit[i] = num_img
+            idx_digit_change.append(sum(images_per_digit))
+
         i_images = images[idx]
         for image in i_images:
             image = image.reshape(-1).tolist()
             digits_images.append(image)
-
+    if mode != 3:
+        idx_digit_change.append(num_dig)
     return digits_images, idx_digit_change
+
+
+def get_num_images_per_digit(labels, images):
+    for i in range(10):
+        # Obtener las primeras n imagenes del digito i 
+        idx = np.where(labels == i)[0]
+        size = len(idx)
+        print(f"digit: {i}, num_imag: {size}")
+
+
 
 # test
 if __name__ == "__main__":
-    """
-    train_images, train_labels, test_images, test_labels = get_MNIST_dataset("archive")
-    digits_images, idx_digit_change = obtain_images(train_images, train_labels, 108, 2)
+    train_labels, train_images, test_labels, test_images = get_MNIST_dataset("archive")
+    digits_images, idx_digit_change = obtain_images(train_labels, train_images, 3)
     print(len(digits_images))
     print(len(digits_images[0]))
+    
+    get_num_images_per_digit(train_labels, train_images)
     print(idx_digit_change)
-    print(digits_images[0])
-"""
 
-    d = [-1 for i in range(10)]
-    d_list = []
-    for i in range(10):
-        d[i] = 1
-        d_list.append(d.copy())
-        d[i] = -1
+    import numpy as np
 
-    print(d_list)
+
+    

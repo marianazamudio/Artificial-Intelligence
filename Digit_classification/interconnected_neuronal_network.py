@@ -9,6 +9,8 @@ import numpy as np
 import math
 import random
 import copy
+# Configure np print settings.
+np.set_printoptions(threshold=np.inf, linewidth=np.inf)
 
 class InterconNeuralNet:
     """
@@ -143,7 +145,7 @@ class InterconNeuralNet:
                 elif wt == 'o':
                     weights_layer = np.ones((rows,columns+1))
                 elif wt == 'r':
-                    weights_layer = np.random.uniform(low =-0.5, high=0.5, size=(rows, columns+1))
+                    weights_layer = np.random.uniform(low =-0.1, high=0.1, size=(rows, columns+1))
 
                 # Append weights of the layer to the array with all the weights
                 weights.append(weights_layer)
@@ -462,34 +464,29 @@ class InterconNeuralNet:
             
             # Iterate in data set
             for idx, i in zip(idx_list, range(len(idx_list))):
-                print(idx, i)
+                #print(idx, i)
                 input_data = data_set[idx]
                 # Configurar entradas
                 self.set_inputs(input_data)
                 
                 # Configurar valores deseados
                 d_n = InterconNeuralNet.set_d_n(idx, class_indx, self.act_funct_num)
-                #print(d_n, "d_n")
-                #print(idx, "idx")
-                #print(class_indx)
-                #input()
 
                 # Obtener neuronas en ultimo 
                 num_outputs = self.neurons_in_layers[-1]
 
                 # Forward computation
                 o_n = self.compute_output()[-num_outputs:]
-                #print(o_n, "o_n")
-                #print(d_n)
-                #print((d_n - o_n))
-                #print((d_n - o_n)**2)
-                #input()
                 
                 # Backward computation
                 self.back_computation(eta=eta,alpha=alpha,d=d_n)
                 
                 MSE += (d_n - o_n)**2
                 #print(MSE)
+                #print(d_n)
+                #print(o_n)
+                #print(idx)
+                #input()
     
             # Compute MSE
             MSE = sum(MSE)
@@ -497,7 +494,7 @@ class InterconNeuralNet:
             MSE_list.append(MSE)
             print("MSE", MSE)
             print("MSE_list", MSE_list)
-            #input()
+            
             # Update eta
             if eta_var:
                 eta += eta_step

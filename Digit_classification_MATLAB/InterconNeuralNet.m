@@ -66,8 +66,8 @@ classdef InterconNeuralNet
                 % next one. There are 3 modes: ceros, ones, random. 
                 if wt == "r"
                     % min and min limits for random elements of matrix
-                    max_r= 1;
-                    min_r= -1;
+                    max_r= 2.4/784;
+                    min_r= -2.4/784;
                     w = min_r + (max_r - min_r) * rand(rows, columns);
                 elseif wt == "z"
                     w = zeros(rows, columns);
@@ -89,7 +89,7 @@ classdef InterconNeuralNet
             obj.cambio_anterior = weights;
         end  
         
-        function set_inputs(obj, inputs)
+        function obj = set_inputs(obj, new_inputs)
             % Modifies inputs of the neural net, adds input X0 = +1 for the bias
             % automatically, no need to enter it.
 
@@ -99,7 +99,7 @@ classdef InterconNeuralNet
             %       the neural network. An item equal to +1 is added autom. at the
             %       beginning for the bias input.
 
-            obj.inputs = inputs;
+            obj.inputs = new_inputs;
         end
         
         
@@ -129,9 +129,11 @@ classdef InterconNeuralNet
                 inputs_of_layer = [1; y];
             end
             output = obj.outputs;
+
+            
         end
         
-        function back_computation(obj, eta, alpha, d)
+        function [obj] = back_computation(obj, eta, alpha, d)
             % Updates the weights of the multilayer neural net,
             % from the last layer to the most hidden layer of neurons.
             %
@@ -147,7 +149,7 @@ classdef InterconNeuralNet
             
             elements_in_layers = [length(obj.inputs), obj.neurons_in_layers];
             
-            local_gradients = zeros(obj.num_layers, max(elements_in_layers));
+            local_gradients = zeros(obj.num_layers, max(obj.neurons_in_layers));
             
             % List of outputs of neurons, added the input values
             y = [obj.inputs, obj.outputs];
@@ -183,25 +185,29 @@ classdef InterconNeuralNet
                             local_gradients(layer, neuron) = (obj.a) * (d(d_idx) - y(idx_neuron)) * (1 - y(idx_neuron)^2);
                         end
                     % HIDDEN LAYER
-                    elseif layer ~= obj.num_layers
+                    elseif layer ~= obj.num_layers+1
                         local_gradients(layer-1, neuron) = 0;
                         %elements_in_layers %TODO
                         %layer+1
                         for k = 1:elements_in_layers(layer+1)
                             % local gradient of neuron k of next layer * weight k,neuron
-                            local_gradients(layer-1, neuron) = local_gradients(layer-1, neuron) + local_gradients(layer, k) * obj.weights{layer}(k, neuron+1); % neuron+1 because weights include the bias in the first position
+                            %local_gradients(layer, neuron);
+                            %local_gradients(layer+1, k);
+                            %obj.weights{layer}(k, neuron+1);
+                            local_gradients(layer, neuron) = local_gradients(layer, neuron) + local_gradients(layer+1, k) * obj.weights{layer}(k, neuron+1); % neuron+1 because weights include the bias in the first position
+                            
                         end
                         % SIGMOID
                         if obj.act_funct_num == 2
-                            local_gradients(layer-1, neuron) = local_gradients(layer-1, neuron) * obj.a * y(idx_neuron) * (1 - y(idx_neuron));
+                            local_gradients(layer, neuron) = local_gradients(layer, neuron) * (obj.a) * y(idx_neuron) * (1 - y(idx_neuron));
                         end
                         % TANH
                         if obj.act_funct_num == 4
-                            local_gradients(layer-1, neuron) = local_gradients(layer-1, neuron) * (obj.a) * (1 - y(idx_neuron)^2);
+                            local_gradients(layer, neuron) = local_gradients(layer, neuron) * (obj.a) * (1 - y(idx_neuron)^2);
                         end
                     end
                     
-                    cambio_actual = eta * local_gradients(layer-1, neuron) * [1, y_prev_lay] + alpha * obj.cambio_anterior{layer-1}(neuron,:);
+                    cambio_actual = eta * local_gradients(layer, neuron) * [1, y_prev_lay] + alpha * obj.cambio_anterior{layer-1}(neuron,:);
 
                     % Change weights
                     obj.weights{layer-1}(neuron,:) = obj.weights{layer-1}(neuron, :) + cambio_actual;
@@ -237,14 +243,16 @@ classdef InterconNeuralNet
                 for i = 1:num_data
                     % Configure input
                     idx = idxs(i);
-                    obj.set_inputs(dataset(idx,:))
-
+                    obj.inputs = dataset(idx,:);
+                    %obj.set_inputs(dataset(idx,:))
+                     
                     % Get d_n
                     desired_res = labels(idx);
                     d_n = obj.get_d(desired_res, num_outputs);  %TODO
 
                     % Forward Computation
                     o_n = obj.compute_output();
+                    obj.outputs = o_n;
                     o_n = o_n(end-num_outputs+1:end);
 
                     % Backward computation

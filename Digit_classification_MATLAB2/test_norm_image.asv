@@ -1,0 +1,12 @@
+% Ejemplo de uso
+image_paths = ['images/i1.jpg','images/i2.jpg', 'images/i3.jpg', 'images/i4.jpg'] ;
+norm_images = normalize_images(image_path);
+
+for i = 1:image_paths
+    image = norm_images(i);
+    
+    image_resh = reshape(image, 28,28);
+    imshow(image_resh);
+    pause()
+    
+end

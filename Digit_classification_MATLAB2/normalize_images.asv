@@ -1,0 +1,15 @@
+function images = normalize_images()
+    images = [];
+    image_paths = {'images/i1.jpg', 'images/i2.jpg',  'images/i3.jpg',  'images/i4.jpg',
+   'images/i5.jpg', 'images/i6.jpg',  'images/i7.jpg',  'images/i8.jpg',
+                   'images/i9.jpg', 'images/i0.jpg'} ;
+
+    for i = 1:length(image_paths)
+        path = image_paths{i};
+        norm_image = normalize_image(path);
+        images(end+1,:) = norm_image();
+    end
+    
+    
+    
+end
